@@ -1,0 +1,29 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- This vector is designed to match the provided Telegram Media Backup logo -->
+
+    <!-- Photo Frame (Right Side) -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#24A1DE"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M42,75 L88,75 C91,75 94,72 94,69 L94,36 C94,33 91,30 88,30 L55,30 C52,30 50,33 50,36 L50,45" />
+
+    <!-- Mountains / Media Icon inside frame -->
+    <path
+        android:fillColor="#24A1DE"
+        android:pathData="M50,65 L62,50 L75,64 L84,45 L94,66 L94,69 C94,72 91,75 88,75 L50,75 Z" />
+
+    <!-- The Paper Plane (Left Side) -->
+    <!-- We add a slight gap to simulate the "cut" effect from the image -->
+    <path
+        android:fillColor="#24A1DE"
+        android:pathData="M5,52 L56,22 L42,78 L34,56 L50,40 L30,54 Z" />
+
+</vector>
