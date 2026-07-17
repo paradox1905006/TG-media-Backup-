@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The app uses Jetpack Compose Material3 dark theming entirely.
+         This XML theme is only needed for the window chrome (status bar etc.) -->
+    <style name="Theme.TGxDParadox" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#000000</item>
+        <item name="android:statusBarColor">#000000</item>
+        <item name="android:navigationBarColor">#000000</item>
+    </style>
+</resources>
