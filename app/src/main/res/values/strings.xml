@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TG x Media Backup</string>
+    <string name="notification_channel_name">Backup Progress</string>
+    <string name="notification_sync_title">TG x Media Backup — Syncing</string>
+</resources>
