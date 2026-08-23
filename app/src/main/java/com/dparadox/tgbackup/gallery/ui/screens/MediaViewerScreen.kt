@@ -65,6 +65,7 @@ fun MediaViewerScreen(
     var isDeletePermanent by remember { mutableStateOf(false) }
     var showBars by remember { mutableStateOf(true) }
     var showDetails by remember { mutableStateOf(false) }
+    var hasSetInitialPage by remember { mutableStateOf(false) }
 
     val editLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -101,8 +102,14 @@ fun MediaViewerScreen(
         viewModel.loadContext(contextType, bucketId)
     }
 
+    // Auto-close if everything is deleted
+    LaunchedEffect(mediaIds) {
+        if (mediaIds.isEmpty() && hasSetInitialPage) {
+            onBack()
+        }
+    }
+
     // Update initial page when mediaIds loads for the first time
-    var hasSetInitialPage by remember { mutableStateOf(false) }
     LaunchedEffect(mediaIds) {
         if (mediaIds.isNotEmpty() && !hasSetInitialPage) {
             val idx = mediaIds.indexOf(initialMediaId)
@@ -233,7 +240,6 @@ fun MediaViewerScreen(
                         } else {
                             IconButton(onClick = {
                                 viewModel.restoreFromTrash(item.mediaStoreId)
-                                if (mediaIds.size <= 1) onBack()
                             }) {
                                 Icon(Icons.Default.Restore, "Restore", tint = Color.White)
                             }
@@ -397,15 +403,12 @@ private fun MediaItemView(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         item?.let { mediaItem ->
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                val maxWidthPx = constraints.maxWidth.toFloat()
-                val maxHeightPx = constraints.maxHeight.toFloat()
-                
+                val scope = this
                 AsyncImage(
                     model = mediaItem.uri,
                     contentDescription = mediaItem.displayName,
@@ -460,8 +463,8 @@ private fun MediaItemView(
                                             onScaleChanged(newScale)
                                             if (scale > 1f) {
                                                 val pan = panChange
-                                                val boundX = (maxWidthPx * (scale - 1) / 2f)
-                                                val boundY = (maxHeightPx * (scale - 1) / 2f)
+                                                val boundX = (scope.constraints.maxWidth * (scale - 1) / 2f)
+                                                val boundY = (scope.constraints.maxHeight * (scale - 1) / 2f)
                                                 
                                                 offset = Offset(
                                                     (offset.x + pan.x).coerceIn(-boundX, boundX),
@@ -510,24 +513,24 @@ private fun MediaItemView(
                                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                 }
                                 context.startActivity(intent)
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 try {
                                     val fallbackIntent = Intent(Intent.ACTION_VIEW).apply {
                                         setDataAndType(mediaItem.uri, "video/*")
                                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                     }
                                     context.startActivity(Intent.createChooser(fallbackIntent, "Play video with"))
-                                } catch (e2: Exception) {
+                                } catch (_: Exception) {
                                     Toast.makeText(context, "No video player found", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .size(72.dp)
+                            .size(80.dp)
                             .background(Color.Black.copy(0.5f), CircleShape)
                     ) {
-                        Icon(Icons.Default.PlayArrow, null, tint = Color.White, modifier = Modifier.size(48.dp))
+                        Icon(Icons.Default.PlayArrow, null, tint = Color.White, modifier = Modifier.size(56.dp))
                     }
                 }
             }
