@@ -1,4 +1,4 @@
-# TG × D.Paradox — Android (Native Kotlin) `v2.2.8`
+# TG × D.Paradox — Android (Native Kotlin) `v2.2.7 BETA`
 
 **TG × D.Paradox** is a powerful, privacy-focused media backup solution for Android. It transforms a Telegram Group into your own personal, unlimited cloud storage, organizing your photos and videos into structured Topics that mirror your device's folder hierarchy.
 
