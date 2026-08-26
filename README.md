@@ -1,6 +1,6 @@
-# TG × D.Paradox — Android (Native Kotlin) `v2.2.7 BETA`
+# TG × Media Backup— Android (Native Kotlin) `v2.2.7 BETA`
 
-**TG × D.Paradox** is a powerful, privacy-focused media backup solution for Android. It transforms a Telegram Group into your own personal, unlimited cloud storage, organizing your photos and videos into structured Topics that mirror your device's folder hierarchy.
+**TG × Media Backup** is a powerful, privacy-focused media backup solution for Android. It transforms a Telegram Group into your own personal, unlimited cloud storage, organizing your photos and videos into structured Topics that mirror your device's folder hierarchy.
 
 ---
 
@@ -16,7 +16,7 @@
 
 ---
 
-## 🚀 What's New in v2.2.8
+## 🚀 What's New in v2.2.7 BETA
 
 - **🔄 Restore Preview**: Tapping "Restore All" now shows a confirmation dialog with the exact number of files that will be downloaded before anything starts.
 - **🌙 Quiet-Hours Backup Window**: A new toggle in Settings → Upload Settings lets you restrict scheduled backups to a specific time range (e.g. 1:00 AM – 6:00 AM). Manually tapping "Start Sync" always runs immediately, regardless of this window.
