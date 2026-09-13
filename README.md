@@ -19,14 +19,6 @@
 
 ---
 
-## 🚀 What's New in v3.1.0
-
-- **🐛 Fixed: split-uploaded files never restoring**: `SPLIT_CHUNK_BYTES` was 45MB, which is under the Bot API's 50MB *upload* limit but well over its separate, much smaller 20MB *download* limit (`getFile()` returns "file is too big" above that). Every chunked upload appeared to succeed but then failed silently, forever, on every restore attempt. Chunk size is now 18MB, safely under the 20MB download ceiling.
-- ⚠️ This only fixes **new** uploads going forward. Files already chunked at the old 45MB size are stuck at that size on Telegram's servers and still cannot be downloaded — re-upload them (delete the record or clear history for that file) to get them onto the new 18MB chunking.
-- **🆕 "Split-Upload Large Files" toggle**: New switch in Settings → Upload Settings (on by default). Turn it off if you don't want large (>50MB) files chunked and uploaded at all — they'll simply be skipped and recorded as "Too Large" in history instead, exactly like pre-split-upload versions of the app.
-- **🆕 "Keep Only Latest Backup" is now always visible**: This toggle used to be hidden inside the "Auto DB Backup" section and only showed up if that was switched on. It now always shows in Settings → Database Backup, because it actually governs *every* DB backup push — the auto-scheduled one, the manual "Backup DB" tap, and the push that fires right after a sync uploads new media — not just the scheduled one.
-- **🐛 Fixed: orphaned "pinned a message" notices left behind by "Keep Only Latest Backup"**: Deleting the old backup document removed the file, but Telegram's own "X pinned a message" service notice for that old pin stayed behind forever, cluttering the chat. Now best-effort deleted alongside the old backup message.
-
 ## 🚀 What's New in v3.0.0
 
 - **🧩 Automatic Split-Upload**: Large files (videos, big archives, etc.) that used to be marked "too large" are now automatically chunked and uploaded — fully transparent on both the upload and restore side.
