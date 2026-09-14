@@ -1,4 +1,4 @@
-# TG × Media Backup — Android (Native Kotlin) `v3.0.0`
+# TG × Media Backup — Android (Native Kotlin) `v3.1.0`
 
 **TG × Media Backup** is a powerful, privacy-focused media backup solution for Android. It transforms a Telegram Group into your own personal, unlimited cloud storage, organizing your photos, videos, and music into structured Topics that mirror your device's folder hierarchy.
 
@@ -19,7 +19,7 @@
 
 ---
 
-## 🚀 What's New in v3.0.0
+## 🚀 What's New in v3.1.0
 
 - **🧩 Automatic Split-Upload**: Large files (videos, big archives, etc.) that used to be marked "too large" are now automatically chunked and uploaded — fully transparent on both the upload and restore side.
 - **🔁 Bot Migration Engine**: A completely new "Migrate to New Bot" flow in Settings. Recovers your full backup history onto a fresh bot token using Telegram's `forwardMessage` trick — the old (revoked) bot's token is never required. Includes a manual `.json` backup import fallback for when auto-discovery can't find a pinned backup.
