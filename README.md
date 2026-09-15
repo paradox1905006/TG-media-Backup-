@@ -50,6 +50,20 @@
 - **Language**: 100% Kotlin with Coroutines & Flow.
 
 ---
+⚠️ UI/UX Disclaimer
+
+This project was built as a hobby solution to my own cloud storage problem. 
+All core features (backup, restore, resume/pause, split-upload, bot migration, cloud DB sync) 
+work reliably and are the main focus of the app.
+
+That said, the UI/UX is not polished like a professional app. 
+I’m not a designer, so please forgive the rough edges. 
+Functionality comes first here — design compromises were made.
+
+Thanks for understanding, and I hope the app still proves useful! 
+
+
+---
 
 ## 🚀 Getting Started
 
