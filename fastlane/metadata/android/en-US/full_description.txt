@@ -1,0 +1,16 @@
+TG × Media Backup is a privacy-focused media backup solution for Android. It turns a Telegram group into your own personal, unlimited cloud storage, organizing your photos, videos, and music into structured Topics that mirror your device's folder hierarchy.
+
+Key features:
+
+* Folder-to-Topic organization: automatically creates a Telegram Forum Topic for every folder on your device, keeping the backup organized exactly like your phone.
+* Deep scanning: uses storage access to discover media in subfolders that standard gallery apps often miss.
+* Automatic split-upload for large files: files over Telegram's upload limit are chunked, uploaded as a sequence, and reassembled and verified automatically on restore. This can be turned off in Settings.
+* SHA-256 deduplication: every file is hashed before upload, so moved or renamed files are recognized and not re-uploaded.
+* Organized restore: recreates the original folder structure from the Telegram Topic names when downloading media back to the device.
+* Cloud history sync: encrypts and uploads the upload database to the Telegram group as a pinned message, so switching phones only needs a "Restore History" step.
+* Migrate to a new bot: if a bot token is ever revoked or lost, recover everything under a new bot without needing the old token.
+* Dedicated music section: browse the device's audio library, play tracks inline, and toggle music backup per track.
+* Background engine: powered by Android WorkManager, with automatic network retries and Wi-Fi/battery constraints.
+* Security first: Telegram credentials are encrypted with AES-256-GCM via the Android Keystore. Credentials never leave the device, and the cloud database backup does not contain the bot token, chat ID, or encryption key.
+
+This app requires a Telegram bot token and a Telegram group with Forum Topics enabled, which the user creates and controls themselves. No third-party server is involved; all data goes directly to the user's own Telegram group.

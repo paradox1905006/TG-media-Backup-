@@ -1,0 +1,7 @@
+v3.1.0
+- Automatic split-upload for large files
+- New "Migrate to New Bot" flow (no old token required)
+- "Keep Only Latest Backup" setting
+- Proper adaptive launcher icon
+- New dedicated Music section
+- DB backup no longer stores bot token, chat ID, or encryption key in plaintext
