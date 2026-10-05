@@ -1,12 +1,8 @@
 package com.dparadox.tgbackup.ui.screens
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
@@ -50,22 +46,14 @@ fun FoldersScreen(viewModel: MainViewModel, onFolderClick: (String) -> Unit) {
     val fullDeviceSync   by viewModel.fullDeviceSyncEnabled.collectAsStateWithLifecycle()
     val watchedFolders   by viewModel.watchedFolderUris.collectAsStateWithLifecycle()
 
-    var hasFullAccess by remember {
-        mutableStateOf(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                Environment.isExternalStorageManager()
-            else
-                ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        )
-    }
+    var hasFullAccess by remember { mutableStateOf(hasMediaAccess(context)) }
 
+    // Standard runtime media permissions (READ_MEDIA_* on Android 13+, READ_EXTERNAL_STORAGE
+    // before that). Folder discovery goes through MediaStore, so no All Files Access is needed.
     val storageLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
+        ActivityResultContracts.RequestMultiplePermissions()
     ) {
-        hasFullAccess = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            Environment.isExternalStorageManager()
-        else
-            ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        hasFullAccess = hasMediaAccess(context)
         if (hasFullAccess) viewModel.refreshFolders()
     }
 
@@ -169,7 +157,7 @@ fun FoldersScreen(viewModel: MainViewModel, onFolderClick: (String) -> Unit) {
 
         // ── Permission required ────────────────────────────────────
         if (!hasFullAccess) {
-            item { PermissionCard { storageLauncher.launch(permissionIntent()) } }
+            item { PermissionCard { storageLauncher.launch(mediaPermissions()) } }
             return@LazyColumn
         }
 
@@ -359,11 +347,11 @@ private fun PermissionCard(onGrant: () -> Unit) {
                 Icon(Icons.Default.FolderOff, null, tint = Destructive, modifier = Modifier.size(28.dp))
             }
             Text(
-                "File Access Required",
+                "Media Access Required",
                 color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 17.sp
             )
             Text(
-                "To discover all your media folders, grant \"All Files Access\". Your files stay private — we only scan folder names.",
+                "To list your photo and video folders, allow access to media. Your files stay private — we only read folder names until you choose what to back up.",
                 color = TextSecondary, fontSize = 13.sp, lineHeight = 19.sp,
                 textAlign = TextAlign.Center
             )
@@ -373,16 +361,19 @@ private fun PermissionCard(onGrant: () -> Unit) {
                 colors  = ButtonDefaults.buttonColors(containerColor = Destructive),
                 modifier = Modifier.fillMaxWidth().height(48.dp)
             ) {
-                Text("Grant Access", fontWeight = FontWeight.Bold)
+                Text("Allow Media Access", fontWeight = FontWeight.Bold)
             }
         }
     }
 }
 
-private fun permissionIntent(): Intent =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-        Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
-            Uri.parse("package:com.dparadox.tgbackup"))
+private fun mediaPermissions(): Array<String> =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO)
     else
-        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.parse("package:com.dparadox.tgbackup"))
+        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+
+private fun hasMediaAccess(context: android.content.Context): Boolean =
+    mediaPermissions().any {
+        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }

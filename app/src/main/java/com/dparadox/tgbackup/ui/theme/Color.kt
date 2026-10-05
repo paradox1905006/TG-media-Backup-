@@ -4,6 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
+// -- Brand Blue  (Telegram-derived electric blue) -- static fallback ------
+
+val BrandPrimary       = Color(0xFF2BA8E8)   // Slightly richer blue
+val BrandPrimaryDark   = Color(0xFF1A8EC8)   // Pressed / shadow tint
+val BrandPrimaryGlow   = Color(0x402BA8E8)   // 25 % alpha -- glow rings
+val BrandPrimaryDim    = Color(0x182BA8E8)   // 9 % alpha -- card tints
+val BrandPrimaryBorder = Color(0x302BA8E8)   // 19 % alpha -- glowing border
+val BrandOnPrimary     = Color(0xFFFFFFFF)
+
 /**
  * Theme-aware surface/text colors.
  *
@@ -34,6 +43,14 @@ data class AppColors(
     val glass: Color,
     val glassStrong: Color,
     val scrim: Color,
+    // Accent colors. Static brand blue by default; follow the wallpaper-based
+    // Material You scheme when dynamic color is on.
+    val primary: Color = BrandPrimary,
+    val onPrimary: Color = BrandOnPrimary,
+    val primaryDark: Color = BrandPrimaryDark,
+    val primaryDim: Color = BrandPrimaryDim,
+    val primaryGlow: Color = BrandPrimaryGlow,
+    val primaryBorder: Color = BrandPrimaryBorder,
 )
 
 // -- Premium Pitch-Black Palette (dark mode, default) ---------------------
@@ -119,14 +136,13 @@ val Glass: Color           @Composable get() = LocalAppColors.current.glass
 val GlassStrong: Color     @Composable get() = LocalAppColors.current.glassStrong
 val Scrim: Color           @Composable get() = LocalAppColors.current.scrim
 
-// -- Brand Blue  (Telegram-derived electric blue) -- same in both themes ---
-
-val Primary         = Color(0xFF2BA8E8)   // Slightly richer blue
-val PrimaryDark     = Color(0xFF1A8EC8)   // Pressed / shadow tint
-val PrimaryGlow     = Color(0x402BA8E8)   // 25 % alpha -- glow rings
-val PrimaryDim      = Color(0x182BA8E8)   // 9 % alpha -- card tints
-val PrimaryBorder   = Color(0x302BA8E8)   // 19 % alpha -- glowing border
-val OnPrimary       = Color(0xFFFFFFFF)
+// Theme-aware accent accessors (switch to Material You colors when dynamic color is on)
+val Primary: Color       @Composable get() = LocalAppColors.current.primary
+val PrimaryDark: Color   @Composable get() = LocalAppColors.current.primaryDark
+val PrimaryGlow: Color   @Composable get() = LocalAppColors.current.primaryGlow
+val PrimaryDim: Color    @Composable get() = LocalAppColors.current.primaryDim
+val PrimaryBorder: Color @Composable get() = LocalAppColors.current.primaryBorder
+val OnPrimary: Color     @Composable get() = LocalAppColors.current.onPrimary
 
 // -- Semantic colours -- same in both themes -------------------------------
 

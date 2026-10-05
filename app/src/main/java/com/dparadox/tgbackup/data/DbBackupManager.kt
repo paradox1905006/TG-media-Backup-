@@ -10,6 +10,10 @@ import org.json.JSONObject
  * (backup-after-every-sync) and [com.dparadox.tgbackup.worker.DatabaseBackupWorker] (scheduled backup),
  * so the format and the security fix below only need to live in one place.
  *
+ * PRIVACY: the backup is encrypted with the file-encryption key when file
+ * encryption is enabled; otherwise it is uploaded as plain JSON (names of files
+ * and folders are then visible to anyone who can read the group).
+ *
  * SECURITY FIX: earlier versions of this backup uploaded the bot token, chat ID,
  * and raw encryption key in PLAINTEXT inside the JSON file — which then sat in
  * the Telegram group itself. Anyone with read access to that group could hijack
@@ -22,6 +26,33 @@ object DbBackupManager {
 
     private const val TAG = "DbBackupManager"
     const val BACKUP_JSON_VERSION = 2
+
+    /** Marker prepended to an encrypted backup so restore can tell it apart from plain JSON. */
+    private val ENCRYPTED_MAGIC = "TGBKENC1".toByteArray()
+
+    /**
+     * Encrypts the backup with the user's file-encryption key (AES-256-GCM) when
+     * file encryption is enabled in Settings; otherwise returns plain JSON bytes.
+     * The backup holds file names, folder names, sizes, hashes and Telegram file IDs.
+     */
+    fun encodeForUpload(json: String, settings: SettingsManager): ByteArray {
+        val plain = json.toByteArray()
+        return if (settings.encryptionEnabled) {
+            ENCRYPTED_MAGIC + EncryptionUtils.encrypt(plain, settings.getEncryptionKey())
+        } else plain
+    }
+
+    /** Reverse of [encodeForUpload]. Throws a readable error if the key is missing/wrong. */
+    fun decodeDownloaded(bytes: ByteArray, settings: SettingsManager): String {
+        val isEncrypted = bytes.size > ENCRYPTED_MAGIC.size &&
+            bytes.copyOfRange(0, ENCRYPTED_MAGIC.size).contentEquals(ENCRYPTED_MAGIC)
+        if (!isEncrypted) return String(bytes)
+        return try {
+            String(EncryptionUtils.decrypt(bytes.copyOfRange(ENCRYPTED_MAGIC.size, bytes.size), settings.getEncryptionKey()))
+        } catch (e: Exception) {
+            throw Exception("This backup is encrypted. Enter the encryption key you used on your old device (Settings) and try again.")
+        }
+    }
 
     /** Serializes the current upload history (including split-file chunk maps) to JSON. Contains no secrets. */
     fun buildBackupJson(records: List<UploadedFile>, partsByHash: Map<String, List<FilePart>>): String {
@@ -78,11 +109,11 @@ object DbBackupManager {
             return false
         }
 
-        val fileName = "TGxDParadox_DbBackup_${System.currentTimeMillis()}.json"
+        val fileName = "TGxDParadox_DbBackup_${System.currentTimeMillis()}.${if (settings.encryptionEnabled) "enc" else "json"}"
         val result = telegramApi.uploadByteArray(
             settings.botToken,
             settings.chatId,
-            jsonString.toByteArray(),
+            encodeForUpload(jsonString, settings),
             fileName,
             "$captionPrefix\n#DbBackup"
         )
@@ -92,21 +123,8 @@ object DbBackupManager {
             val previousId = settings.lastDbBackupMessageId
             if (previousId > 0 && previousId != result.first) {
                 try { telegramApi.deleteMessage(settings.botToken, settings.chatId, previousId) } catch (e: Exception) {}
-                // Telegram auto-generates a separate "X pinned a message" service
-                // message right after pinChatMessage() succeeds — its own message,
-                // with its own message_id, that pinChatMessage's response never
-                // returns to us. Left alone it becomes an orphaned line once the
-                // backup document it refers to is deleted above. The Bot API has
-                // no lookup for "give me the pin-notice id for message N", but
-                // Telegram assigns chat message_ids sequentially, and the pin
-                // notice for a message is (almost always) the very next id in the
-                // chat — so we opportunistically delete previousId + 1 too. This
-                // is a best-effort heuristic, not a guarantee: if another message
-                // landed in the chat between the old pin and now, this deletes
-                // the wrong (usually already-gone or unrelated) id, which is why
-                // it's wrapped in its own try/catch and never allowed to fail
-                // the backup push itself.
-                try { telegramApi.deleteMessage(settings.botToken, settings.chatId, previousId + 1) } catch (e: Exception) {}
+                // NOTE: the "X pinned a message" service notice is intentionally left alone.
+                // Guessing its id (previousId + 1) could delete an unrelated message in the group.
             }
         }
 

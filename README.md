@@ -1,4 +1,4 @@
-# TG × Media Backup — Android (Native Kotlin) `v3.1.3`
+# TG × Media Backup — Android (Native Kotlin) `v3.1.4`
 
 **TG × Media Backup** is a powerful, privacy-focused media backup solution for Android. It transforms a Telegram Group into your own personal, unlimited cloud storage, organizing your photos, videos, and music into structured Topics that mirror your device's folder hierarchy.
 
@@ -7,17 +7,27 @@
 ## ✨ Key Features
 
 - **📂 Folder-to-Topic Organization**: Automatically creates Telegram Forum Topics for every folder on your device. Your backup stays organized exactly like your phone.
-- **🔍 File Manager Grade Scanning**: Uses `MANAGE_EXTERNAL_STORAGE` to discover media deep within your storage, including subfolders that standard gallery apps often miss.
+- **🔍 Deep Folder Discovery**: Uses Android's MediaStore (standard media permissions only, no All Files Access) to list every photo/video folder on your device. You can also pick any folder with the system folder picker.
 - **🧩 Automatic Split-Upload for Large Files** *(toggle in Settings)*: Files over Telegram Bot API's 50MB limit are chunked (≤18MB pieces, kept under Telegram's 20MB *download* ceiling), uploaded as a sequence, and reassembled + SHA-256-verified automatically on restore. Turn this off in Settings → Upload Settings → "Split-Upload Large Files" if you'd rather large files were simply skipped (shown as "Too Large" in history) instead of chunked.
 - **🛡️ SHA-256 Deduplication**: Every file is hashed before upload. If you move or rename a file, the app recognizes it and skips re-uploading, saving data and time.
 - **🔄 Organized Restore**: When downloading media back to your device, the app re-creates the original folder structure based on the Telegram Topic names.
-- **☁️ Cloud History Sync**: Encrypts and uploads your upload database to your Telegram group as a pinned message. Switching phones? Just "Restore History" to pick up where you left off.
+- **☁️ Cloud History Sync**: Uploads your upload database (file/folder names, sizes, hashes, Telegram file IDs) to your Telegram group as a pinned message. It is encrypted only if file encryption is enabled in Settings; otherwise it is plain JSON. Switching phones? Just "Restore History" to pick up where you left off.
 - **🔁 Migrate to a New Bot**: If your bot token ever gets revoked or lost, recover everything under a brand-new bot — without ever needing the old token. The app finds your pinned DB backup (or you import it manually), re-links every file via Telegram's `forwardMessage`, and cleans up the old duplicate messages so the group stays tidy.
 - **🎵 Dedicated Music Section**: Browse your device's full audio library in its own tab — play tracks inline, see backup status per song, and toggle music backup right there (not buried in Settings).
 - **⚡ Background Engine**: Powered by Android WorkManager. Handles network retries, exponential backoff, and respects Wi-Fi/Battery constraints automatically.
-- **🔐 Security First**: Telegram credentials are encrypted using **AES-256-GCM** via the Android Keystore System. Your tokens never leave your device — and as of v3.0.0, the cloud DB backup file itself no longer contains your bot token, chat ID, or encryption key either.
+- **🔐 Security First**: Telegram credentials are encrypted using **AES-256-GCM** via the Android Keystore System. The cloud DB backup never contains your bot token, chat ID, or encryption key. **File encryption is OFF by default**, so media is uploaded to Telegram unencrypted unless you enable it in Settings. The optional Local Backup export writes your bot token, chat ID and encryption key in plain text to the file you choose, so keep that file safe.
+- **🎨 Material 3 + Material You**: Dynamic colors from your wallpaper on Android 12+ (toggle in Settings → Appearance), with System / Light / Dark theme modes.
 
 ---
+
+## 🚀 What's New in v3.1.4
+
+- **🎨 Material You**: Material 3 dynamic color (Android 12+) and a System / Light / Dark theme selector in Settings → Appearance.
+- **🔓 Less access**: Removed `MANAGE_EXTERNAL_STORAGE`; folders are discovered via MediaStore with standard media permissions.
+- **🪶 Smaller APK**: Removed unused SQLCipher, Biometric and DataStore dependencies and the unused biometric permissions.
+- **🔒 Encrypted DB backup**: The cloud database backup is AES-256-GCM encrypted when file encryption is enabled.
+- **⚠️ Export warning**: Local Backup export now warns that the file is plain text.
+- **🐛 Fix**: Removed the `previousId + 1` delete that could remove an unrelated group message.
 
 ## 🚀 What's New in v3.1.2
 
@@ -46,7 +56,7 @@
 
 ## 🛠️ Technical Stack
 
-- **UI**: Jetpack Compose (Material 3) with a Premium Pitch Black theme.
+- **UI**: Jetpack Compose (Material 3) with Material You dynamic color and a Pitch Black / Light theme.
 - **Database**: Room (SQLite) for tracking millions of file hashes efficiently, including per-chunk metadata for split-uploaded files.
 - **Background**: WorkManager for robust periodic syncing, restoring, and bot migration.
 - **Network**: OkHttp for multipart Telegram Bot API communication (upload, download, forward, delete).
@@ -89,7 +99,7 @@ Thanks for understanding, and I hope the app still proves useful!
 2. Open in Android Studio and let Gradle Sync finish.
 3. Build and install on your device.
 4. Enter your Bot Token and Chat ID in the **Settings** tab.
-5. Grant **All Files Access** when prompted to allow the app to scan your folders.
+5. Allow **media access** when prompted so the app can list your photo/video folders.
 
 > **Note**: Room's database migration (v7 → v8, adding split-upload support) runs automatically — no need to clear app data when upgrading from an older version.
 
@@ -99,7 +109,6 @@ Thanks for understanding, and I hope the app still proves useful!
 
 | Permission | Why? |
 |---|---|
-| `MANAGE_EXTERNAL_STORAGE` | Required to scan all folders and subfolders for media, acting as a file manager. |
 | `READ_MEDIA_IMAGES` / `READ_MEDIA_VIDEO` / `READ_MEDIA_AUDIO` | Access photos, videos, and music on Android 13+. |
 | `INTERNET` | To communicate with the Telegram Bot API. |
 | `FOREGROUND_SERVICE` | Ensures sync, restore, and migration don't get killed by Android during long-running operations. |
@@ -115,8 +124,8 @@ app/src/main/java/com/dparadox/tgbackup/
 ├── data/
 │   ├── AppDatabase.kt      — Room DB for upload tracking (v8: includes split-file chunks)
 │   ├── FilePart.kt         — Per-chunk metadata for split-uploaded large files
-│   ├── DbBackupManager.kt  — Shared, security-fixed cloud DB backup builder
-│   ├── FileSyncEngine.kt   — Recursive storage scanning & hashing
+│   ├── DbBackupManager.kt  — Shared cloud DB backup builder (optional encryption)
+│   ├── FileSyncEngine.kt   — MediaStore / SAF folder scanning & hashing
 │   └── SettingsManager.kt  — Encrypted credential storage
 ├── network/
 │   └── TelegramApi.kt      — Topic creation, upload/download, forward & delete logic
@@ -138,7 +147,7 @@ app/src/main/java/com/dparadox/tgbackup/
 
 ## ⚠️ Troubleshooting
 
-- **Folders not showing?**: Ensure you have granted "All Files Access" in the Status tab.
+- **Folders not showing?**: Ensure you have allowed media access for the app in Android Settings.
 - **Topic creation failed?**: Make sure your Telegram Group has **Topics/Forum** mode enabled and the bot is an **Admin**.
 - **Background sync delayed?**: Android may delay WorkManager tasks if Battery Optimization is on. Tap "Disable Battery Optimization" in Settings for instant background runs.
 - **Bot revoked/lost?**: Use Settings → "Migrate to New Bot". Add the new bot as admin (with delete-messages permission) to the same group first.

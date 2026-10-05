@@ -15,8 +15,8 @@ android {
         applicationId = "com.dparadox.tgbackup"
         minSdk = 26          // Android 8.0+
         targetSdk = 35
-        versionCode = 8
-        versionName = "3.1.3"
+        versionCode = 9
+        versionName = "3.1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -110,16 +110,8 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
 
-    // SQLCipher for encrypted vault
-    implementation(libs.net.zetetic.sqlcipher)
+    // SQLite helper types used by Room (AppDatabase)
     implementation(libs.androidx.sqlite.ktx)
-
-    // Biometric for Hidden vault
-    implementation(libs.androidx.biometric)
-    implementation(libs.androidx.fragment.ktx)
-
-    // DataStore
-    implementation(libs.androidx.datastore.preferences)
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)

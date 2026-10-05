@@ -106,7 +106,7 @@ class MigrationWorker(
                 if (!file.exists()) {
                     return@withContext Result.failure(workDataOf(KEY_RESULT_ERROR to "Imported backup file not found."))
                 }
-                file.readText() to null
+                DbBackupManager.decodeDownloaded(file.readBytes(), settings) to null
             } else {
                 discoverOldBackup(newBotToken, chatId)
                     ?: return@withContext Result.failure(workDataOf(
@@ -291,7 +291,7 @@ class MigrationWorker(
             val forwardedMsgId = forwarded.optLong("message_id", 0L)
             if (forwardedMsgId > 0L) telegramApi.deleteMessage(newBotToken, chatId, forwardedMsgId)
 
-            String(bytes) to oldMessageId
+            DbBackupManager.decodeDownloaded(bytes, settings) to oldMessageId
         } catch (e: Exception) {
             Log.w(TAG, "Auto-discovery of old backup failed: ${e.message}")
             null

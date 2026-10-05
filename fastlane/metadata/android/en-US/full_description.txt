@@ -3,14 +3,15 @@ TG × Media Backup is a privacy-focused media backup solution for Android. It tu
 Key features:
 
 * Folder-to-Topic organization: automatically creates a Telegram Forum Topic for every folder on your device, keeping the backup organized exactly like your phone.
-* Deep scanning: uses storage access to discover media in subfolders that standard gallery apps often miss.
+* Folder discovery: uses Android's MediaStore with standard media permissions (no All Files Access) to find every photo and video folder, and supports the system folder picker.
 * Automatic split-upload for large files: files over Telegram's upload limit are chunked, uploaded as a sequence, and reassembled and verified automatically on restore. This can be turned off in Settings.
 * SHA-256 deduplication: every file is hashed before upload, so moved or renamed files are recognized and not re-uploaded.
 * Organized restore: recreates the original folder structure from the Telegram Topic names when downloading media back to the device.
-* Cloud history sync: encrypts and uploads the upload database to the Telegram group as a pinned message, so switching phones only needs a "Restore History" step.
+* Cloud history sync: uploads the upload database (file names, folder names, sizes, hashes, Telegram file IDs) to the Telegram group as a pinned message, so switching phones only needs a "Restore History" step. It is encrypted only when file encryption is turned on in Settings; otherwise it is plain JSON.
 * Migrate to a new bot: if a bot token is ever revoked or lost, recover everything under a new bot without needing the old token.
 * Dedicated music section: browse the device's audio library, play tracks inline, and toggle music backup per track.
 * Background engine: powered by Android WorkManager, with automatic network retries and Wi-Fi/battery constraints.
-* Security first: Telegram credentials are encrypted with AES-256-GCM via the Android Keystore. Credentials never leave the device, and the cloud database backup does not contain the bot token, chat ID, or encryption key.
+* Security: Telegram credentials are stored encrypted with AES-256-GCM via the Android Keystore, and the cloud database backup never contains the bot token, chat ID, or encryption key. File encryption (AES-256-GCM) is OFF by default, so media is uploaded to Telegram unencrypted unless you enable it in Settings. The optional Local Backup export in Settings writes your bot token, chat ID and encryption key in plain text to the file you choose, so keep that file safe.
+* Appearance: Material 3 design with Material You dynamic colors (Android 12+), plus system/light/dark theme.
 
 This app requires a Telegram bot token and a Telegram group with Forum Topics enabled, which the user creates and controls themselves. No third-party server is involved; all data goes directly to the user's own Telegram group.

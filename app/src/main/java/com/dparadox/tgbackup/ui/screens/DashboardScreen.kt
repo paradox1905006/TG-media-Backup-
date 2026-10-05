@@ -54,7 +54,6 @@ fun DashboardScreen(viewModel: MainViewModel) {
     val downloadWorkInfos by viewModel.downloadWorkInfo.collectAsStateWithLifecycle()
     val downloadProgress  by viewModel.downloadProgressPercent.collectAsStateWithLifecycle()
     val restorePreviewCount by viewModel.restorePreviewCount.collectAsStateWithLifecycle()
-    val darkModeEnabled   by viewModel.darkModeEnabled.collectAsStateWithLifecycle()
 
     if (restorePreviewCount != null) {
         AlertDialog(

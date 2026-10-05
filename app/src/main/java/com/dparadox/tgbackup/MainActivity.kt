@@ -1,10 +1,11 @@
 package com.dparadox.tgbackup
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dparadox.tgbackup.ui.AppNavigation
@@ -18,7 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
  * Gallery, Folders, History, Settings).
  */
 @AndroidEntryPoint
-class MainActivity : FragmentActivity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()   // Draw behind status bar and nav bar
@@ -26,9 +27,15 @@ class MainActivity : FragmentActivity() {
             // Single shared ViewModel for the whole app so the Settings > Appearance
             // toggle (light/dark) is reflected immediately at the theme root.
             val viewModel: MainViewModel = viewModel()
-            val darkModeEnabled by viewModel.darkModeEnabled.collectAsStateWithLifecycle()
+            val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+            val dynamicColor by viewModel.dynamicColorEnabled.collectAsStateWithLifecycle()
+            val darkTheme = when (themeMode) {
+                1 -> false
+                2 -> true
+                else -> isSystemInDarkTheme()
+            }
 
-            TgBackupTheme(darkTheme = darkModeEnabled) {
+            TgBackupTheme(darkTheme = darkTheme, dynamicColor = dynamicColor) {
                 AppNavigation(viewModel)
             }
         }

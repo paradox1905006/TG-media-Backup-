@@ -53,6 +53,8 @@ class SettingsManager(context: Context) {
         private const val KEY_QUIET_HOURS_START   = "quiet_hours_start"
         private const val KEY_QUIET_HOURS_END     = "quiet_hours_end"
         private const val KEY_DARK_MODE_ENABLED   = "dark_mode_enabled"
+        private const val KEY_THEME_MODE          = "theme_mode"
+        private const val KEY_DYNAMIC_COLOR       = "dynamic_color_enabled"
         private const val KEY_INCLUDE_MUSIC       = "include_music_backup"
         private const val KEY_AUTO_BACKUP_MUSIC   = "auto_backup_music_enabled"
         private const val KEY_DB_BACKUP_AUTO_DELETE_OLD = "db_backup_auto_delete_old"
@@ -66,6 +68,17 @@ class SettingsManager(context: Context) {
     var darkModeEnabled: Boolean
         get() = prefs.getBoolean(KEY_DARK_MODE_ENABLED, true)
         set(value) { prefs.edit().putBoolean(KEY_DARK_MODE_ENABLED, value).apply() }
+
+    /** 0 = follow system, 1 = light, 2 = dark. Falls back to the old dark-mode toggle for existing users. */
+    var themeMode: Int
+        get() = if (prefs.contains(KEY_THEME_MODE)) prefs.getInt(KEY_THEME_MODE, 2)
+                else if (prefs.getBoolean(KEY_DARK_MODE_ENABLED, true)) 2 else 1
+        set(value) { prefs.edit().putInt(KEY_THEME_MODE, value.coerceIn(0, 2)).apply() }
+
+    /** Material You dynamic colors (Android 12+). On by default where supported. */
+    var dynamicColorEnabled: Boolean
+        get() = prefs.getBoolean(KEY_DYNAMIC_COLOR, android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S)
+        set(value) { prefs.edit().putBoolean(KEY_DYNAMIC_COLOR, value).apply() }
 
     // ── Music backup ──────────────────────────────────────────────────────
 

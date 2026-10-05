@@ -1,0 +1,7 @@
+v3.1.4
+- Material 3 theme with Material You dynamic colors (Android 12+), follow-system light/dark
+- Removed All Files Access permission; folders are discovered via standard media permissions
+- Removed unused SQLCipher, Biometric and DataStore libraries and permissions (much smaller APK)
+- Cloud database backup is encrypted when file encryption is enabled
+- Warning shown before exporting the plain-text local backup
+- Fixed cleanup of old backup messages that could delete an unrelated message

@@ -11,6 +11,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.dparadox.tgbackup.data.DbBackupManager
 import com.dparadox.tgbackup.data.AppDatabase
 import com.dparadox.tgbackup.data.SelectedMedia
 import com.dparadox.tgbackup.data.FilePart
@@ -101,6 +102,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setDarkModeEnabled(enabled: Boolean) {
         settings.darkModeEnabled = enabled
         _darkModeEnabled.value = enabled
+    }
+
+    // 0 = follow system, 1 = light, 2 = dark
+    private val _themeMode = MutableStateFlow(settings.themeMode)
+    val themeMode: StateFlow<Int> = _themeMode
+
+    fun setThemeMode(mode: Int) {
+        settings.themeMode = mode
+        _themeMode.value = mode
+    }
+
+    private val _dynamicColorEnabled = MutableStateFlow(settings.dynamicColorEnabled)
+    val dynamicColorEnabled: StateFlow<Boolean> = _dynamicColorEnabled
+
+    fun setDynamicColorEnabled(enabled: Boolean) {
+        settings.dynamicColorEnabled = enabled
+        _dynamicColorEnabled.value = enabled
     }
 
     // ── Music backup ───────────────────────────────────────────────────────
@@ -592,7 +610,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val doc = pinned.optJSONObject("document")
                     if (doc != null) {
                         val bytes = telegramApi.downloadFile(settings.botToken, doc.getString("file_id"))
-                        val json = JSONObject(String(bytes))
+                        val json = JSONObject(DbBackupManager.decodeDownloaded(bytes, settings))
                         val array = json.getJSONArray("history")
                         json.optString("key", "").let { if (it.isNotBlank()) settings.setEncryptionKey(it) }
                         
@@ -639,7 +657,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     ?: throw Exception("Pinned message is not a backup file.")
 
                 val bytes = telegramApi.downloadFile(settings.botToken, doc.getString("file_id"))
-                val json = JSONObject(String(bytes))
+                val json = JSONObject(DbBackupManager.decodeDownloaded(bytes, settings))
                 val array = json.getJSONArray("history")
                 json.optString("key", "").let { if (it.isNotBlank()) settings.setEncryptionKey(it) }
 

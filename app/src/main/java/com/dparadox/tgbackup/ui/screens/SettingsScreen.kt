@@ -78,7 +78,6 @@ fun SettingsScreen(viewModel: MainViewModel) {
     var dbInterval    by remember { mutableIntStateOf(settings.dbBackupIntervalHours) }
     var dbAutoDeleteOld by remember { mutableStateOf(settings.dbBackupAutoDeleteOld) }
     var encryptionEnabled by remember { mutableStateOf(settings.encryptionEnabled) }
-    var darkModeEnabled by remember { mutableStateOf(settings.darkModeEnabled) }
     var includeMusicBackup by remember { mutableStateOf(settings.includeMusicBackup) }
     val intervalOptions = listOf(1, 3, 6, 12, 24)
 
@@ -207,12 +206,31 @@ fun SettingsScreen(viewModel: MainViewModel) {
         // ── Appearance ──────────────────────────────────────────
         SettingsSection(label = "APPEARANCE", icon = Icons.Default.DarkMode) {
             Column(Modifier.padding(horizontal = 4.dp)) {
-                PremiumToggle(
-                    label       = "Dark Mode",
-                    description = "Switch off for a clean light theme across the whole app.",
-                    checked     = darkModeEnabled,
-                    onChecked   = { darkModeEnabled = it; viewModel.setDarkModeEnabled(it) }
-                )
+                val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+                val dynamicColor by viewModel.dynamicColorEnabled.collectAsStateWithLifecycle()
+
+                Text("Theme", color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
+                    modifier = Modifier.padding(start = 10.dp, top = 8.dp, bottom = 6.dp))
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf("System" to 0, "Light" to 1, "Dark" to 2).forEach { (label, mode) ->
+                        FilterChip(
+                            selected = themeMode == mode,
+                            onClick  = { viewModel.setThemeMode(mode) },
+                            label    = { Text(label) }
+                        )
+                    }
+                }
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                    PremiumToggle(
+                        label       = "Dynamic Color (Material You)",
+                        description = "Use colors from your wallpaper. Turn off for the classic Telegram-blue look.",
+                        checked     = dynamicColor,
+                        onChecked   = { viewModel.setDynamicColorEnabled(it) }
+                    )
+                }
             }
         }
 
@@ -438,7 +456,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                 GradientDivider(Modifier.padding(horizontal = 14.dp))
                 PremiumToggle(
                     label       = "Keep Only Latest Backup",
-                    description = "Delete the previous backup message (and its \"pinned a message\" notice, best-effort) each time a new one is pushed — applies to every backup push (auto, manual, or after new uploads), so the group doesn't fill up with old snapshots.",
+                    description = "Delete the previous backup message each time a new one is pushed — applies to every backup push (auto, manual, or after new uploads), so the group doesn't fill up with old snapshots.",
                     checked     = dbAutoDeleteOld,
                     onChecked   = { dbAutoDeleteOld = it; settings.dbBackupAutoDeleteOld = it }
                 )
@@ -470,6 +488,11 @@ fun SettingsScreen(viewModel: MainViewModel) {
                         }
                     }
                 }
+
+                Text(
+                    "Warning: the exported file is NOT encrypted. It contains your bot token, chat ID and file encryption key in plain text. Store it somewhere safe and never share it.",
+                    color = Destructive, fontSize = 12.sp, lineHeight = 17.sp
+                )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedButton(

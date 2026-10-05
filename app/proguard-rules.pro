@@ -34,10 +34,6 @@
 # ── Kotlin Coroutines ───────────────────────────────────────────────────────
 -keepclassmembers class kotlinx.coroutines.** { *; }
 
-# ── SQLCipher ───────────────────────────────────────────────────────────────
--keep class net.sqlcipher.** { *; }
--dontwarn net.sqlcipher.**
-
 # ── kotlinx.serialization ────────────────────────────────────────────────────
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt
