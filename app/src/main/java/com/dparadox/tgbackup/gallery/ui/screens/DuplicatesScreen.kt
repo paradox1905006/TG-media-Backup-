@@ -69,7 +69,7 @@ fun DuplicatesScreen(
             confirmButton = {
                 Button(
                     onClick = { showDeleteConfirm = false; viewModel.deleteSelected() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Destructive, contentColor = Color.White)
+                    colors = ButtonDefaults.buttonColors(containerColor = Destructive, contentColor = MaterialTheme.colorScheme.onPrimary)
                 ) { Text("Delete", fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
@@ -79,8 +79,8 @@ fun DuplicatesScreen(
     }
 
     Column(Modifier.fillMaxSize().background(Background)) {
-        CenterAlignedTopAppBar(
-            title = { Text("Duplicate Finder", fontWeight = FontWeight.Black, color = TextPrimary) },
+        TopAppBar(
+            title = { Text("Duplicate Finder", fontWeight = FontWeight.SemiBold, color = TextPrimary) },
             navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = TextPrimary)
@@ -91,7 +91,7 @@ fun DuplicatesScreen(
                     Icon(Icons.Default.Refresh, "Rescan", tint = Primary)
                 }
             },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Background)
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
         )
 
         when {
@@ -154,7 +154,7 @@ fun DuplicatesScreen(
                 onClick = { showDeleteConfirm = true },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Destructive, contentColor = Color.White)
+                colors = ButtonDefaults.buttonColors(containerColor = Destructive, contentColor = MaterialTheme.colorScheme.onPrimary)
             ) {
                 Icon(Icons.Default.DeleteSweep, null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
@@ -173,16 +173,15 @@ private fun DuplicateGroupCard(
     Column(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Surface)
-            .padding(12.dp),
+            .clip(RoundedCornerShape(24.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Text(
             "${group.items.size} copies · ${formatBytesDup(group.items.firstOrNull()?.sizeBytes ?: 0)} each",
-            color = TextSecondary,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             items(group.items, key = { it.uri.toString() }) { file ->
@@ -191,7 +190,7 @@ private fun DuplicateGroupCard(
                 Box(
                     modifier = Modifier
                         .size(96.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .clickable { onToggle(file.uri) }
                 ) {
                     AsyncImage(
@@ -212,7 +211,7 @@ private fun DuplicateGroupCard(
                                 .background(Success.copy(alpha = 0.85f))
                                 .padding(horizontal = 5.dp, vertical = 2.dp)
                         ) {
-                            Text("KEEP", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Black)
+                            Text("Keep", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                     Box(

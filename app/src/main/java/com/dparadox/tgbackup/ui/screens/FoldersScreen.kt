@@ -62,7 +62,7 @@ fun FoldersScreen(viewModel: MainViewModel, onFolderClick: (String) -> Unit) {
             .fillMaxSize()
             .background(Background),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // ── Page header ───────────────────────────────────────────
         item {
@@ -102,13 +102,8 @@ fun FoldersScreen(viewModel: MainViewModel, onFolderClick: (String) -> Unit) {
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
+                    .clip(RoundedCornerShape(24.dp))
                     .background(if (fullDeviceSync) PrimaryDim else Surface)
-                    .border(
-                        1.dp,
-                        if (fullDeviceSync) PrimaryBorder else Border,
-                        RoundedCornerShape(20.dp)
-                    )
             ) {
                 Row(
                     Modifier
@@ -144,12 +139,6 @@ fun FoldersScreen(viewModel: MainViewModel, onFolderClick: (String) -> Unit) {
                     Switch(
                         checked = fullDeviceSync,
                         onCheckedChange = { viewModel.setFullDeviceSync(it) },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor   = Color.White,
-                            checkedTrackColor   = Primary,
-                            uncheckedThumbColor = TextMuted,
-                            uncheckedTrackColor = SurfaceElevated
-                        )
                     )
                 }
             }
@@ -201,8 +190,8 @@ private fun DevicePhotosCard(totalPhotos: Int, onClick: () -> Unit) {
     Box(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
-            .background(Brush.horizontalGradient(listOf(Primary, Color(0xFF6C63FF))))
+            .clip(RoundedCornerShape(24.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .clickable { onClick() }
     ) {
         Row(
@@ -211,21 +200,21 @@ private fun DevicePhotosCard(totalPhotos: Int, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Box(
-                Modifier.size(52.dp).clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha = 0.2f)),
+                Modifier.size(52.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.PhotoLibrary, null, tint = Color.White, modifier = Modifier.size(28.dp))
+                Icon(Icons.Default.PhotoLibrary, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
             }
             Column(Modifier.weight(1f)) {
-                Text("Device Photos", color = Color.White, fontWeight = FontWeight.Black, fontSize = 18.sp)
-                Text("Select individual photos to backup", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+                Text("Device Photos", color = MaterialTheme.colorScheme.onPrimaryContainer, style = MaterialTheme.typography.titleMedium)
+                Text("Select individual photos to backup", color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall)
             }
-            Icon(Icons.Default.ArrowForwardIos, null, tint = Color.White, modifier = Modifier.size(16.dp))
+            Icon(Icons.Default.ArrowForwardIos, null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(16.dp))
         }
     }
 }
 
-// ── Folder card ────────────────────────────────────────────────────────────
+// ── Folder row ─────────────────────────────────────────────────────────────
 
 @Composable
 private fun FolderCard(
@@ -237,90 +226,43 @@ private fun FolderCard(
     onClick: () -> Unit,
     onToggle: () -> Unit
 ) {
-    val cardBg = if (isSelected && !autoMode) PrimaryDim else Surface
-    val borderColor = if (isSelected && !autoMode) PrimaryBorder else Border
-
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(18.dp))
-            .background(cardBg)
-            .border(1.dp, borderColor, RoundedCornerShape(18.dp))
-            .clickable { onClick() }
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            // Thumbnail or folder icon
-            Box(
-                Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(SurfaceAlt),
-                contentAlignment = Alignment.Center
-            ) {
-                if (thumbnail != null) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(thumbnail)
-                            .size(110, 110)
-                            .scale(Scale.FILL)
-                            .crossfade(false)
-                            .build(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    // Tint overlay if selected
-                    if (isSelected && !autoMode) {
-                        Box(Modifier.fillMaxSize().background(Primary.copy(alpha = 0.18f)))
+    val cs = MaterialTheme.colorScheme
+    Column(Modifier.fillMaxWidth()) {
+        ListItem(
+            modifier = Modifier.clip(RoundedCornerShape(16.dp)).clickable { onClick() },
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            leadingContent = {
+                Box(
+                    Modifier.size(52.dp).clip(RoundedCornerShape(12.dp)).background(cs.surfaceContainerHighest),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (thumbnail != null) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(thumbnail).size(110, 110).scale(Scale.FILL).crossfade(false).build(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Icon(Icons.Default.Folder, null, tint = cs.primary, modifier = Modifier.size(26.dp))
                     }
-                } else {
-                    Icon(
-                        Icons.Default.Folder,
-                        null,
-                        tint = if (isSelected && !autoMode) Primary else TextMuted,
-                        modifier = Modifier.size(26.dp)
-                    )
                 }
+            },
+            headlineContent = {
+                Text(name, style = MaterialTheme.typography.titleMedium, maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            },
+            supportingContent = {
+                Text(path, style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant, maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            },
+            trailingContent = {
+                if (autoMode) StatusBadge("Auto", Success)
+                else Switch(checked = isSelected, onCheckedChange = { onToggle() })
             }
-
-            // Name + path
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(
-                    name,
-                    color      = TextPrimary,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize   = 14.sp,
-                    maxLines   = 1,
-                    overflow   = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                )
-                Text(
-                    path,
-                    color    = TextMuted,
-                    fontSize = 11.sp,
-                    maxLines = 1,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                )
-            }
-
-            // Selection control or AUTO badge
-            if (autoMode) {
-                StatusBadge("AUTO", Success)
-            } else {
-                Checkbox(
-                    checked  = isSelected,
-                    onCheckedChange = { onToggle() },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor        = Primary,
-                        uncheckedColor      = TextMuted,
-                        checkmarkColor      = Color.White
-                    )
-                )
-            }
-        }
+        )
+        HorizontalDivider(Modifier.padding(start = 84.dp), color = cs.outlineVariant.copy(alpha = 0.5f))
     }
 }
 
@@ -331,9 +273,8 @@ private fun PermissionCard(onGrant: () -> Unit) {
     Box(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
+            .clip(RoundedCornerShape(24.dp))
             .background(DestructiveDim)
-            .border(1.dp, Destructive.copy(alpha = 0.3f), RoundedCornerShape(22.dp))
     ) {
         Column(
             Modifier.padding(24.dp),
@@ -341,7 +282,7 @@ private fun PermissionCard(onGrant: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Box(
-                Modifier.size(56.dp).clip(RoundedCornerShape(18.dp)).background(Destructive.copy(alpha = 0.15f)),
+                Modifier.size(56.dp).clip(RoundedCornerShape(24.dp)).background(Destructive.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(Icons.Default.FolderOff, null, tint = Destructive, modifier = Modifier.size(28.dp))

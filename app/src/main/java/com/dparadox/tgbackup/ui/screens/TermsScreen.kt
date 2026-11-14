@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -63,12 +64,7 @@ fun TermsScreen(viewModel: MainViewModel, onAccepted: () -> Unit) {
                     Modifier
                         .size(100.dp)
                         .clip(RoundedCornerShape(32.dp))
-                        .background(
-                            Brush.radialGradient(
-                                listOf(PrimaryDim, Color.Transparent)
-                            )
-                        )
-                        .border(1.dp, PrimaryBorder, RoundedCornerShape(32.dp)),
+                        .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -83,10 +79,8 @@ fun TermsScreen(viewModel: MainViewModel, onAccepted: () -> Unit) {
 
                 Text(
                     "TG × Media Backup",
-                    fontSize      = 28.sp,
-                    fontWeight    = FontWeight.Black,
-                    color         = TextPrimary,
-                    letterSpacing = (-0.5).sp
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
@@ -178,13 +172,13 @@ fun TermsScreen(viewModel: MainViewModel, onAccepted: () -> Unit) {
                     shape = RoundedCornerShape(18.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Primary,
-                        contentColor   = Color.White
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                 ) {
                     Icon(Icons.Default.CheckCircle, null, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(10.dp))
-                    Text("I Agree — Let's Go", fontWeight = FontWeight.ExtraBold, fontSize = 15.sp)
+                    Text("I Agree — Let's Go", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
                 }
 
                 Text(
@@ -214,9 +208,8 @@ private fun TermsCard(
     Box(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(Surface)
-            .border(1.dp, Border, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(24.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
         Column(Modifier.padding(20.dp)) {
             // Card header
@@ -227,7 +220,7 @@ private fun TermsCard(
                 Box(
                     Modifier
                         .size(40.dp)
-                        .clip(RoundedCornerShape(13.dp))
+                        .clip(CircleShape)
                         .background(color.copy(alpha = 0.12f)),
                     contentAlignment = Alignment.Center
                 ) {
@@ -235,24 +228,15 @@ private fun TermsCard(
                 }
                 Text(
                     title,
-                    fontWeight    = FontWeight.Bold,
-                    fontSize      = 15.sp,
-                    color         = TextPrimary,
-                    letterSpacing = (-0.1).sp
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
             Spacer(Modifier.height(16.dp))
 
             // Divider
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(
-                        Brush.horizontalGradient(listOf(color.copy(alpha = 0.3f), Color.Transparent))
-                    )
-            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             Spacer(Modifier.height(14.dp))
 

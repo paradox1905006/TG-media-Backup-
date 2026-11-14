@@ -90,18 +90,19 @@ private fun AlbumCard(
     album: Album,
     onClick: () -> Unit
 ) {
+    val cs = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Surface)
             .clickable(onClick = onClick)
+            .padding(bottom = 4.dp)
     ) {
-        // Cover
         Box(
             Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .background(SurfaceAlt),
+                .clip(RoundedCornerShape(16.dp))
+                .background(cs.surfaceContainerHigh),
             contentAlignment = Alignment.Center
         ) {
             if (album.coverUri != null) {
@@ -112,41 +113,22 @@ private fun AlbumCard(
                     modifier = Modifier.fillMaxSize()
                 )
             } else {
-                Icon(
-                    Icons.Default.Folder,
-                    null,
-                    tint = TextMuted,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-            // Count badge
-            Box(
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(6.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(Color.Black.copy(alpha = 0.7f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    "${album.itemCount}",
-                    color = Color.White,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                )
+                Icon(Icons.Default.Folder, null, tint = cs.primary, modifier = Modifier.size(40.dp))
             }
         }
-
-        // Name
         Text(
             album.bucketName,
-            color = TextPrimary,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.titleSmall,
+            color = cs.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
+            modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 8.dp)
+        )
+        Text(
+            "${album.itemCount} item${if (album.itemCount != 1) "s" else ""}",
+            style = MaterialTheme.typography.bodySmall,
+            color = cs.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 4.dp)
         )
     }
 }

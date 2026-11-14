@@ -99,9 +99,8 @@ fun FolderDetailScreen(
                     Column {
                         Text(
                             displayTitle,
-                            fontWeight = FontWeight.Bold,
-                            fontSize   = 17.sp,
-                            color      = TextPrimary
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         if (!isLoading) {
                             Text(
@@ -122,8 +121,8 @@ fun FolderDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor    = Background,
-                    scrolledContainerColor = Surface
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer
                 )
             )
         },
@@ -267,8 +266,8 @@ fun MediaGridItem(
         modifier = Modifier
             .aspectRatio(1f)
             .scale(scale)
-            .clip(RoundedCornerShape(14.dp))
-            .background(SurfaceAlt)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             .clickable { onClick() }
     ) {
         val context = LocalContext.current
@@ -293,8 +292,7 @@ fun MediaGridItem(
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(Primary.copy(alpha = 0.25f))
-                    .border(3.dp, Primary, RoundedCornerShape(14.dp)),
+                    .background(Primary.copy(alpha = 0.25f)),
                 contentAlignment = Alignment.TopEnd
             ) {
                 Box(
@@ -325,7 +323,7 @@ fun MediaGridItem(
                     .background(Color.Black.copy(alpha = 0.7f))
                     .padding(horizontal = 5.dp, vertical = 3.dp)
             ) {
-                Text("▶", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Icon(Icons.Default.PlayArrow, null, tint = Color.White, modifier = Modifier.size(14.dp))
             }
         }
     }

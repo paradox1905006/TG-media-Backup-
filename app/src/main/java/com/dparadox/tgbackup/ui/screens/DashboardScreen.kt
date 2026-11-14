@@ -51,6 +51,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
     val syncWorkInfos     by viewModel.syncWorkInfo.collectAsStateWithLifecycle()
     val isSyncing          = syncWorkInfos.any { !it.state.isFinished }
     val syncProgress      by viewModel.syncProgressPercent.collectAsStateWithLifecycle()
+    val syncQueueSnapshot by viewModel.syncQueueSnapshot.collectAsStateWithLifecycle()
     val downloadWorkInfos by viewModel.downloadWorkInfo.collectAsStateWithLifecycle()
     val downloadProgress  by viewModel.downloadProgressPercent.collectAsStateWithLifecycle()
     val restorePreviewCount by viewModel.restorePreviewCount.collectAsStateWithLifecycle()
@@ -66,7 +67,7 @@ fun DashboardScreen(viewModel: MainViewModel) {
             confirmButton = {
                 Button(
                     onClick = { viewModel.confirmRestoreFromPreview() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = Color.White)
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary, contentColor = MaterialTheme.colorScheme.onPrimary)
                 ) { Text("Restore ${restorePreviewCount}", fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
@@ -95,7 +96,6 @@ fun DashboardScreen(viewModel: MainViewModel) {
                 Modifier
                     .clip(RoundedCornerShape(28.dp))
                     .background(SurfaceElevated)
-                    .border(1.dp, Border, RoundedCornerShape(28.dp))
             ) {
                 Column(
                     Modifier.padding(32.dp),
@@ -128,13 +128,11 @@ fun DashboardScreen(viewModel: MainViewModel) {
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Spacer(Modifier.height(4.dp))
-
         // Header
         Header(settings.isConfigured())
 
         // Cloud stats
-        CloudStatsCard(stats)
+        CloudStatsCard(stats, syncQueueSnapshot)
 
         // Sync controls
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -232,77 +230,100 @@ fun DashboardScreen(viewModel: MainViewModel) {
 @Composable
 private fun Header(isConfigured: Boolean) {
     Row(
-        verticalAlignment   = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Logo box with glow ring
-        Box(
-            modifier = Modifier
-                .size(60.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(PrimaryDim)
-                .border(1.dp, PrimaryBorder, RoundedCornerShape(20.dp)),
-            contentAlignment = Alignment.Center
+        Text(
+            "TG Media Backup",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        val ok = isConfigured
+        Surface(
+            shape = RoundedCornerShape(50),
+            color = if (ok) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
         ) {
-            Icon(
-                painter = painterResource(R.drawable.logo),
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(44.dp)
-            )
-        }
-
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(
-                "TG × Media Backup",
-                style      = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Black,
-                letterSpacing = (-0.3).sp
-            )
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                if (isConfigured) PulsingDot(Success) else Box(Modifier.size(8.dp).clip(CircleShape).background(Destructive))
+            Row(
+                Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Icon(
+                    if (ok) Icons.Default.CheckCircle else Icons.Default.ErrorOutline, null,
+                    modifier = Modifier.size(16.dp),
+                    tint = if (ok) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
+                )
                 Text(
-                    if (isConfigured) "Engine Active" else "Setup Required",
-                    color      = if (isConfigured) Success else Destructive,
-                    fontSize   = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.4.sp
+                    if (ok) "Active" else "Setup needed",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (ok) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onErrorContainer
                 )
             }
         }
     }
 }
 
-// ── Cloud stats card ───────────────────────────────────────────────────────
+// ── Backup status card ─────────────────────────────────────────────────────
 
 @Composable
-private fun CloudStatsCard(stats: MainViewModel.Stats) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
-            .background(
-                Brush.linearGradient(listOf(PrimaryDim, Color.Transparent, Color.Transparent))
-            )
-            .border(1.dp, PrimaryBorder, RoundedCornerShape(22.dp))
+private fun CloudStatsCard(stats: MainViewModel.Stats, queueSnapshot: MainViewModel.SyncQueueSnapshot?) {
+    // Files already resolved (uploaded, permanently failed, or too large) sit
+    // in the DB and are always part of the total. While a sync is actively
+    // uploading, SyncWorker also knows how many files it queued this run and
+    // how many of those are done — add the ones still queued so the total
+    // reflects everything that will be backed up, not just what's finished
+    // so far. Without this, "total" only ever counted already-finished
+    // files, so it grew in lockstep with "uploaded" and the ring sat at
+    // 100% for the entire duration of a backup.
+    val resolved = stats.uploaded + stats.failed + stats.tooLarge
+    val displayUploaded: Int
+    val total: Int
+    if (queueSnapshot != null) {
+        val alreadyUploadedBeforeThisRun = resolved - queueSnapshot.current
+        displayUploaded = resolved
+        total = alreadyUploadedBeforeThisRun + queueSnapshot.total
+    } else {
+        displayUploaded = stats.uploaded
+        total = resolved
+    }
+    val fraction = if (total > 0) displayUploaded.toFloat() / total else 0f
+    val animated by animateFloatAsState(fraction, tween(700), label = "ring")
+    val cs = MaterialTheme.colorScheme
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = cs.surfaceContainer)
     ) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(Icons.Default.Cloud, null, tint = Primary, modifier = Modifier.size(16.dp))
-                Text("TELEGRAM CLOUD", fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.5.sp, color = Primary)
+        Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            Text("Backup status", style = MaterialTheme.typography.titleLarge, color = cs.onSurface)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                Box(Modifier.size(112.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        progress = { animated },
+                        modifier = Modifier.fillMaxSize(),
+                        color = cs.primary,
+                        trackColor = cs.surfaceContainerHighest,
+                        strokeWidth = 10.dp,
+                        strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                    )
+                    Text("${(animated * 100).toInt()}%", style = MaterialTheme.typography.headlineSmall, color = cs.onSurface)
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        if (total > 0) "$displayUploaded of $total" else "$displayUploaded",
+                        style = MaterialTheme.typography.headlineSmall, color = cs.onSurface
+                    )
+                    Text("files backed up", style = MaterialTheme.typography.bodyLarge, color = cs.onSurfaceVariant)
+                    Spacer(Modifier.height(4.dp))
+                    Text(formatSize(stats.totalSize) + " in Telegram", style = MaterialTheme.typography.bodyMedium, color = cs.onSurfaceVariant)
+                }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                CloudStat(Icons.Default.Photo,       "Photos",  stats.photos.toString())
-                Box(Modifier.width(1.dp).height(40.dp).background(Border))
-                CloudStat(Icons.Default.Videocam,    "Videos",  stats.videos.toString())
-                Box(Modifier.width(1.dp).height(40.dp).background(Border))
-                CloudStat(Icons.Default.MusicNote,   "Music",   stats.music.toString())
-                Box(Modifier.width(1.dp).height(40.dp).background(Border))
-                CloudStat(Icons.Default.Storage,     "Storage", formatSize(stats.totalSize))
+            HorizontalDivider(color = cs.outlineVariant.copy(alpha = 0.5f))
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                CloudStat(Icons.Default.Photo,     "Photos", stats.photos.toString())
+                CloudStat(Icons.Default.Videocam,  "Videos", stats.videos.toString())
+                CloudStat(Icons.Default.MusicNote, "Music",  stats.music.toString())
             }
         }
     }
@@ -310,10 +331,15 @@ private fun CloudStatsCard(stats: MainViewModel.Stats) {
 
 @Composable
 private fun CloudStat(icon: ImageVector, label: String, value: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Icon(icon, null, tint = Primary, modifier = Modifier.size(18.dp))
-        Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary, letterSpacing = (-0.3).sp)
-        Text(label, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = TextMuted, letterSpacing = 0.5.sp)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Box(
+            Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer),
+            contentAlignment = Alignment.Center
+        ) { Icon(icon, null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(18.dp)) }
+        Column {
+            Text(value, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 
@@ -438,7 +464,7 @@ private fun CloudRestoreCard(
                                 shape    = RoundedCornerShape(14.dp),
                                 colors   = ButtonDefaults.buttonColors(
                                     containerColor        = Primary,
-                                    contentColor          = Color.White,
+                                    contentColor = MaterialTheme.colorScheme.onPrimary,
                                     disabledContainerColor = SurfaceElevated,
                                     disabledContentColor  = TextMuted
                                 ),
@@ -484,7 +510,7 @@ private fun CloudRestoreCard(
                                 Spacer(Modifier.width(8.dp))
                                 Text(
                                     if (restorePaused) "Resume" else "Pause",
-                                    fontWeight = FontWeight.ExtraBold, fontSize = 14.sp
+                                    fontWeight = FontWeight.SemiBold, fontSize = 14.sp
                                 )
                             }
 
@@ -547,7 +573,7 @@ private fun PremiumActionButton(
     color: Color,
     enabled: Boolean,
     modifier: Modifier = Modifier,
-    contentColor: Color = Color.White,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
     onClick: () -> Unit
 ) {
     // FIX (double-click + competing animations):
@@ -582,10 +608,10 @@ private fun PremiumActionButton(
         modifier          = modifier
             .height(56.dp)
             .graphicsLayer { scaleX = scale; scaleY = scale },
-        shape  = RoundedCornerShape(16.dp),
+        shape  = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(
-            containerColor        = color,
-            contentColor          = contentColor,
+            containerColor        = if (color == SurfaceElevated) MaterialTheme.colorScheme.secondaryContainer else color,
+            contentColor          = if (color == SurfaceElevated) MaterialTheme.colorScheme.onSecondaryContainer else contentColor,
             disabledContainerColor = SurfaceAlt,
             disabledContentColor  = TextMuted
         ),
@@ -593,7 +619,7 @@ private fun PremiumActionButton(
     ) {
         Icon(icon, null, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(8.dp))
-        Text(label, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1)
+        Text(label, style = MaterialTheme.typography.labelLarge, maxLines = 1)
     }
 }
 
@@ -620,7 +646,6 @@ private fun CloudFolderPickerDialog(
                 .fillMaxHeight(0.85f)
                 .clip(RoundedCornerShape(28.dp))
                 .background(SurfaceElevated)
-                .border(1.dp, Border, RoundedCornerShape(28.dp))
         ) {
             Column(Modifier.fillMaxSize()) {
 
@@ -642,7 +667,7 @@ private fun CloudFolderPickerDialog(
                             Icon(Icons.Default.CloudDownload, null, tint = Primary, modifier = Modifier.size(22.dp))
                         }
                         Column {
-                            Text("Cloud Restore", fontWeight = FontWeight.Black, fontSize = 18.sp, color = TextPrimary, letterSpacing = (-0.2).sp)
+                            Text("Cloud Restore", fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = TextPrimary, letterSpacing = (-0.2).sp)
                             Text("Select folders to download", fontSize = 12.sp, color = TextSecondary)
                         }
                     }
@@ -747,7 +772,7 @@ private fun CloudFolderPickerDialog(
                         shape    = RoundedCornerShape(14.dp),
                         colors   = ButtonDefaults.buttonColors(
                             containerColor        = Primary,
-                            contentColor          = Color.White,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
                             disabledContainerColor = SurfaceAlt,
                             disabledContentColor  = TextMuted
                         ),

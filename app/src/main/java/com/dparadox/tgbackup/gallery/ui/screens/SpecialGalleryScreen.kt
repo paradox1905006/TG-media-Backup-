@@ -82,7 +82,7 @@ fun SpecialGalleryScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 title = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
@@ -120,12 +120,12 @@ fun SpecialGalleryScreen(
                                 }
                             }
                             TextButton(onClick = { viewModel.exitSelectionMode() }) {
-                                Text("Cancel", color = Primary, fontWeight = FontWeight.Bold)
+                                Text("Cancel")
                             }
                         }
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Background)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         },
         containerColor = Background

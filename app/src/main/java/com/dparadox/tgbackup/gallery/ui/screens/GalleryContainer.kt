@@ -41,21 +41,14 @@ fun GalleryContainer(
             .background(Background)
     ) {
         // Top Header
-        CenterAlignedTopAppBar(
+        TopAppBar(
             title = {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "Gallery",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Black,
-                        color = TextPrimary,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1
-                    )
-                }
+                Text(
+                    "Gallery",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = TextPrimary,
+                    maxLines = 1
+                )
             },
             actions = {
                 IconButton(onClick = onOpenDuplicates) {
@@ -68,7 +61,7 @@ fun GalleryContainer(
                     Icon(Icons.Default.Delete, "Trash", tint = TextMuted)
                 }
             },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = Background
             )
         )
@@ -80,8 +73,8 @@ fun GalleryContainer(
                 .fillMaxWidth(0.9f)
                 .align(Alignment.CenterHorizontally)
                 .padding(vertical = 8.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(SurfaceAlt)
+                .clip(RoundedCornerShape(50))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
                 .padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -126,8 +119,8 @@ private fun GalleryTabChip(
 ) {
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(11.dp),
-        color = if (selected) Primary else Color.Transparent,
+        shape = RoundedCornerShape(50),
+        color = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
         modifier = modifier.height(38.dp)
     ) {
         Row(
@@ -138,14 +131,13 @@ private fun GalleryTabChip(
             Icon(
                 icon,
                 null,
-                tint = if (selected) Color.White else TextMuted,
+                tint = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else TextMuted,
                 modifier = Modifier.size(16.dp)
             )
             Text(
                 label,
-                color = if (selected) Color.White else TextMuted,
-                fontSize = 13.sp,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+                color = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else TextMuted,
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }

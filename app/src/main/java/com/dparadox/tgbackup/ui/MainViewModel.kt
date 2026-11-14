@@ -485,6 +485,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    /**
+     * Snapshot of the current sync pass, read straight from SyncWorker's live
+     * WorkManager progress: how many files are queued to upload this run
+     * ("total" the worker discovered after scanning) and how many of those it
+     * has gotten through so far. Both are null while idle — the "uploading"
+     * phase is when these numbers are meaningful, since during "scanning" the
+     * worker hasn't finished counting pending files yet.
+     *
+     * This exists so the dashboard's headline stat (CloudStatsCard) can show
+     * a total that includes files still queued, not just what's already in
+     * the database — otherwise "uploaded" and "total" both only count
+     * already-finished uploads and the ring reads 100% the entire time a
+     * sync is running.
+     */
+    data class SyncQueueSnapshot(val current: Int, val total: Int)
+
+    val syncQueueSnapshot: StateFlow<SyncQueueSnapshot?> = syncWorkInfo
+        .map { infos ->
+            val active = infos.firstOrNull { !it.state.isFinished } ?: return@map null
+            val phase = active.progress.getString(SyncWorker.KEY_PROGRESS_PHASE)
+            if (phase != "uploading") return@map null
+            val current = active.progress.getInt(SyncWorker.KEY_PROGRESS_CURRENT, 0)
+            val total = active.progress.getInt(SyncWorker.KEY_PROGRESS_TOTAL, 0)
+            if (total <= 0) null else SyncQueueSnapshot(current, total)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
     /** 0-100, or null while indeterminate/idle. Read from DownloadWorker.setProgress(). */
     val downloadProgressPercent: StateFlow<Int?> = downloadWorkInfo
         .map { infos ->

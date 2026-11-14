@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -14,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -174,7 +174,7 @@ private fun ActivityTimeline(history: List<UploadedFile>) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(24.dp))
             .background(Surface)
             .padding(14.dp)
     ) {
@@ -223,7 +223,7 @@ private fun ActivityTimeline(history: List<UploadedFile>) {
 private fun HistoryStatCard(value: String, label: String, color: Color, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(24.dp))
             .background(color.copy(alpha = 0.10f))
             .padding(vertical = 14.dp),
         contentAlignment = Alignment.Center
@@ -234,15 +234,14 @@ private fun HistoryStatCard(value: String, label: String, color: Color, modifier
         ) {
             Text(
                 value,
-                fontWeight = FontWeight.Black,
+                fontWeight = FontWeight.SemiBold,
                 fontSize   = 22.sp,
                 color      = color
             )
             Text(
                 label,
                 fontSize   = 10.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 0.5.sp,
+                fontWeight = FontWeight.Medium,
                 color      = color.copy(alpha = 0.7f)
             )
         }
@@ -273,68 +272,37 @@ private fun HistoryItem(record: UploadedFile) {
         }
     }
 
-    val accentBrush = remember(statusColor) {
-        Brush.verticalGradient(listOf(statusColor, statusColor.copy(alpha = 0.2f)))
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Surface)
-    ) {
-        // Subtle left accent bar
-        Box(
-            modifier = Modifier
-                .width(3.dp)
-                .fillMaxHeight()
-                .background(accentBrush)
-        )
-
+    val cs = MaterialTheme.colorScheme
+    Column(Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Media type icon
             Box(
-                Modifier
-                    .size(38.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(statusColor.copy(alpha = 0.10f)),
+                Modifier.size(44.dp).clip(CircleShape).background(cs.secondaryContainer),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(statusIcon, null, tint = statusColor, modifier = Modifier.size(20.dp))
+                Icon(mediaIcon, null, tint = cs.onSecondaryContainer, modifier = Modifier.size(22.dp))
             }
-
-            // File info
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     record.fileName,
-                    color      = TextPrimary,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize   = 13.sp,
-                    maxLines   = 1,
-                    overflow   = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    style = MaterialTheme.typography.titleSmall,
+                    color = cs.onSurface,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(mediaIcon, null, tint = TextMuted, modifier = Modifier.size(11.dp))
-                    Text(dateStr, color = TextMuted, fontSize = 11.sp)
-                    if (record.fileSize > 0) {
-                        Text("·", color = TextHint, fontSize = 11.sp)
-                        Text(formatBytes(record.fileSize), color = TextMuted, fontSize = 11.sp)
-                    }
-                }
+                Text(
+                    if (record.fileSize > 0) "$dateStr · ${formatBytes(record.fileSize)}" else dateStr,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = cs.onSurfaceVariant
+                )
             }
-
             // Status badge
             StatusBadge(statusLabel, statusColor)
         }
+        HorizontalDivider(Modifier.padding(start = 62.dp), color = cs.outlineVariant.copy(alpha = 0.5f))
     }
 }
 

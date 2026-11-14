@@ -165,9 +165,7 @@ private fun TimelineHeader(
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
                 )
-                if (!isSelectionMode) {
-                    Text("All your media", fontSize = 11.sp, color = TextMuted)
-                }
+
             }
         },
         navigationIcon = {
@@ -211,14 +209,12 @@ private fun DateHeader(day: String) {
             .fillMaxWidth()
             .background(Background)
             .padding(horizontal = 8.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.CenterStart
     ) {
         Text(
             day,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextSecondary,
-            letterSpacing = 0.3.sp
+            style = MaterialTheme.typography.titleSmall,
+            color = TextPrimary
         )
     }
 }

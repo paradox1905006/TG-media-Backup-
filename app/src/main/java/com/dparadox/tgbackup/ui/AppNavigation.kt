@@ -58,9 +58,9 @@ fun AppNavigation(viewModel: MainViewModel) {
 
     data class Tab(val route: String, val label: String, val icon: ImageVector)
     val tabs = listOf(
+        Tab("dashboard", "Home",      Icons.Default.Home),
         Tab("gallery",   "Gallery",   Icons.Default.PhotoLibrary),
         Tab("music",     "Music",     Icons.Default.MusicNote),
-        Tab("dashboard", "Dashboard", Icons.Default.Dashboard),
         Tab("folders",   "Folders",   Icons.Default.FolderOpen),
         Tab("history",   "History",   Icons.Default.History),
         Tab("settings",  "Settings",  Icons.Default.Settings),
@@ -73,22 +73,11 @@ fun AppNavigation(viewModel: MainViewModel) {
             val currentRoute = navBackStackEntry?.destination?.route
             if (currentRoute == "terms") return@Scaffold
 
-            // Premium glass nav bar
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(Color.Transparent, Background.copy(alpha = 0.97f))
-                        )
-                    )
-            ) {
+            // Standard Material 3 navigation bar
+            Box(modifier = Modifier.fillMaxWidth()) {
                 NavigationBar(
-                    containerColor = Surface.copy(alpha = 0.96f),
-                    tonalElevation = 0.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     val currentDest = navBackStackEntry?.destination
                     tabs.forEach { tab ->
@@ -103,37 +92,27 @@ fun AppNavigation(viewModel: MainViewModel) {
                                 }
                             },
                             icon = {
-                                Box(contentAlignment = Alignment.Center) {
-                                    // Glow behind selected icon
-                                    if (isSelected) {
-                                        Box(
-                                            Modifier
-                                                .size(40.dp)
-                                                .clip(RoundedCornerShape(14.dp))
-                                                .background(PrimaryDim)
-                                        )
-                                    }
-                                    Icon(
-                                        imageVector = tab.icon,
-                                        contentDescription = tab.label,
-                                        modifier = Modifier.size(22.dp)
-                                    )
-                                }
+                                Icon(
+                                    imageVector = tab.icon,
+                                    contentDescription = tab.label,
+                                    modifier = Modifier.size(24.dp)
+                                )
                             },
                             label = {
                                 Text(
                                     tab.label,
-                                    fontSize = 10.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    letterSpacing = 0.sp
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium
                                 )
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor       = Primary,
-                                selectedTextColor       = Primary,
-                                indicatorColor          = Color.Transparent,
-                                unselectedIconColor     = TextMuted,
-                                unselectedTextColor     = TextMuted,
+                                selectedIconColor       = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedTextColor       = MaterialTheme.colorScheme.primary,
+                                indicatorColor          = MaterialTheme.colorScheme.primaryContainer,
+                                unselectedIconColor     = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor     = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         )
                     }

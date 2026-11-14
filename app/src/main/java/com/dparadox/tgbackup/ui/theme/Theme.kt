@@ -1,91 +1,100 @@
 package com.dparadox.tgbackup.ui.theme
 
+import android.app.Activity
 import android.os.Build
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-
-private val DarkColorScheme = darkColorScheme(
-    primary              = BrandPrimary,
-    onPrimary            = BrandOnPrimary,
-    primaryContainer     = BrandPrimaryDim,
-    onPrimaryContainer   = BrandPrimary,
-    background           = DarkBackground,
-    onBackground         = DarkTextPrimary,
-    surface              = DarkSurface,
-    onSurface            = DarkTextPrimary,
-    surfaceVariant       = DarkSurfaceAlt,
-    onSurfaceVariant     = DarkTextSecondary,
-    surfaceTint          = BrandPrimary,
-    outline              = DarkBorder,
-    outlineVariant       = DarkBorderSubtle,
-    error                = Destructive,
-    onError              = BrandOnPrimary,
-    errorContainer       = DestructiveDim,
-    onErrorContainer     = Destructive,
-    secondaryContainer   = DarkSurfaceElevated,
-    onSecondaryContainer = DarkTextPrimary,
-    scrim                = DarkScrim,
-)
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary              = BrandPrimary,
-    onPrimary            = BrandOnPrimary,
-    primaryContainer     = BrandPrimaryDim,
-    onPrimaryContainer   = BrandPrimary,
-    background           = LightBackground,
-    onBackground         = LightTextPrimary,
-    surface              = LightSurface,
-    onSurface            = LightTextPrimary,
-    surfaceVariant       = LightSurfaceAlt,
-    onSurfaceVariant     = LightTextSecondary,
-    surfaceTint          = BrandPrimary,
-    outline              = LightBorder,
-    outlineVariant       = LightBorderSubtle,
-    error                = Destructive,
-    onError              = BrandOnPrimary,
-    errorContainer       = DestructiveDim,
-    onErrorContainer     = Destructive,
-    secondaryContainer   = LightSurfaceElevated,
-    onSecondaryContainer = LightTextPrimary,
-    scrim                = LightScrim,
+    primary = md_light_primary, onPrimary = md_light_onPrimary,
+    primaryContainer = md_light_primaryContainer, onPrimaryContainer = md_light_onPrimaryContainer,
+    secondary = md_light_secondary, onSecondary = md_light_onSecondary,
+    secondaryContainer = md_light_secondaryContainer, onSecondaryContainer = md_light_onSecondaryContainer,
+    tertiary = md_light_tertiary, onTertiary = md_light_onTertiary,
+    tertiaryContainer = md_light_tertiaryContainer, onTertiaryContainer = md_light_onTertiaryContainer,
+    error = md_light_error, onError = md_light_onError,
+    errorContainer = md_light_errorContainer, onErrorContainer = md_light_onErrorContainer,
+    background = md_light_background, onBackground = md_light_onBackground,
+    surface = md_light_surface, onSurface = md_light_onSurface,
+    surfaceVariant = md_light_surfaceVariant, onSurfaceVariant = md_light_onSurfaceVariant,
+    outline = md_light_outline, outlineVariant = md_light_outlineVariant,
+    inverseSurface = md_light_inverseSurface, inverseOnSurface = md_light_inverseOnSurface,
+    inversePrimary = md_light_inversePrimary, surfaceTint = md_light_primary,
+    surfaceDim = md_light_surfaceDim, surfaceBright = md_light_surfaceBright,
+    surfaceContainerLowest = md_light_surfaceContainerLowest,
+    surfaceContainerLow = md_light_surfaceContainerLow,
+    surfaceContainer = md_light_surfaceContainer,
+    surfaceContainerHigh = md_light_surfaceContainerHigh,
+    surfaceContainerHighest = md_light_surfaceContainerHighest,
 )
 
-/** Maps a Material 3 (dynamic) color scheme onto the app's own surface/text/accent tokens. */
+private val DarkColorScheme = darkColorScheme(
+    primary = md_dark_primary, onPrimary = md_dark_onPrimary,
+    primaryContainer = md_dark_primaryContainer, onPrimaryContainer = md_dark_onPrimaryContainer,
+    secondary = md_dark_secondary, onSecondary = md_dark_onSecondary,
+    secondaryContainer = md_dark_secondaryContainer, onSecondaryContainer = md_dark_onSecondaryContainer,
+    tertiary = md_dark_tertiary, onTertiary = md_dark_onTertiary,
+    tertiaryContainer = md_dark_tertiaryContainer, onTertiaryContainer = md_dark_onTertiaryContainer,
+    error = md_dark_error, onError = md_dark_onError,
+    errorContainer = md_dark_errorContainer, onErrorContainer = md_dark_onErrorContainer,
+    background = md_dark_background, onBackground = md_dark_onBackground,
+    surface = md_dark_surface, onSurface = md_dark_onSurface,
+    surfaceVariant = md_dark_surfaceVariant, onSurfaceVariant = md_dark_onSurfaceVariant,
+    outline = md_dark_outline, outlineVariant = md_dark_outlineVariant,
+    inverseSurface = md_dark_inverseSurface, inverseOnSurface = md_dark_inverseOnSurface,
+    inversePrimary = md_dark_inversePrimary, surfaceTint = md_dark_primary,
+    surfaceDim = md_dark_surfaceDim, surfaceBright = md_dark_surfaceBright,
+    surfaceContainerLowest = md_dark_surfaceContainerLowest,
+    surfaceContainerLow = md_dark_surfaceContainerLow,
+    surfaceContainer = md_dark_surfaceContainer,
+    surfaceContainerHigh = md_dark_surfaceContainerHigh,
+    surfaceContainerHighest = md_dark_surfaceContainerHighest,
+)
+
+/** Maps the active Material 3 scheme onto the app's own tokens. */
 private fun appColorsFrom(cs: ColorScheme): AppColors = AppColors(
-    background      = cs.background,
-    surface         = cs.surfaceContainerLow,
+    background      = cs.surface,
+    surface         = cs.surfaceContainer,
     surfaceAlt      = cs.surfaceContainer,
     surfaceElevated = cs.surfaceContainerHigh,
     border          = cs.outlineVariant,
     borderSubtle    = cs.outlineVariant.copy(alpha = 0.5f),
     textPrimary     = cs.onSurface,
     textSecondary   = cs.onSurfaceVariant,
-    textMuted       = cs.onSurfaceVariant.copy(alpha = 0.65f),
-    textHint        = cs.outline.copy(alpha = 0.5f),
-    glass           = cs.onSurface.copy(alpha = 0.08f),
-    glassStrong     = cs.onSurface.copy(alpha = 0.15f),
-    scrim           = cs.scrim.copy(alpha = 0.8f),
+    textMuted       = cs.onSurfaceVariant.copy(alpha = 0.72f),
+    textHint        = cs.outline.copy(alpha = 0.6f),
+    glass           = cs.onSurface.copy(alpha = 0.06f),
+    glassStrong     = cs.onSurface.copy(alpha = 0.10f),
+    scrim           = cs.scrim.copy(alpha = 0.6f),
     primary         = cs.primary,
     onPrimary       = cs.onPrimary,
-    primaryDark     = cs.primary.copy(alpha = 0.85f),
-    primaryDim      = cs.primary.copy(alpha = 0.10f),
-    primaryGlow     = cs.primary.copy(alpha = 0.25f),
-    primaryBorder   = cs.primary.copy(alpha = 0.20f),
+    primaryDark     = cs.primary.copy(alpha = 0.88f),
+    primaryDim      = cs.primaryContainer.copy(alpha = 0.55f),
+    primaryGlow     = cs.primary.copy(alpha = 0.12f),
+    primaryBorder   = cs.primary.copy(alpha = 0.28f),
+    primaryContainer   = cs.primaryContainer,
+    onPrimaryContainer = cs.onPrimaryContainer,
+    success         = Success,
+    warning         = Warning,
+    destructive     = cs.error,
 )
 
 /**
  * TGxMediaBackup Material 3 theme.
  *
  * @param darkTheme dark or light palette.
- * @param dynamicColor use Material You colors from the wallpaper (Android 12+ only).
- * When off (or on older Android) the Telegram-blue static palette is used.
+ * @param dynamicColor use Material You wallpaper colours (Android 12+).
  */
 @Composable
 fun TgBackupTheme(
@@ -102,17 +111,25 @@ fun TgBackupTheme(
         darkTheme               -> DarkColorScheme
         else                    -> LightColorScheme
     }
-    val appColors = when {
-        useDynamic && darkTheme -> appColorsFrom(colorScheme)
-        useDynamic              -> appColorsFrom(colorScheme)
-        darkTheme               -> DarkAppColors
-        else                    -> LightAppColors
+    val appColors = remember(colorScheme) { appColorsFrom(colorScheme) }
+
+    // Status / navigation bar icons follow the theme.
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as? Activity)?.window ?: return@SideEffect
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
+            }
+        }
     }
 
     CompositionLocalProvider(LocalAppColors provides appColors) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography  = appTypography(appColors),
+            shapes      = AppShapes,
             content     = content,
         )
     }

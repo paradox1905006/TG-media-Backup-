@@ -4,30 +4,93 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-// -- Brand Blue  (Telegram-derived electric blue) -- static fallback ------
+/*
+ * Material 3 tonal palette generated from a Telegram-blue seed (#2AABEE).
+ * Light and dark schemes follow the official M3 role mapping, so every
+ * Material component (buttons, chips, nav bar, dialogs...) looks native.
+ */
 
-val BrandPrimary       = Color(0xFF2BA8E8)   // Slightly richer blue
-val BrandPrimaryDark   = Color(0xFF1A8EC8)   // Pressed / shadow tint
-val BrandPrimaryGlow   = Color(0x402BA8E8)   // 25 % alpha -- glow rings
-val BrandPrimaryDim    = Color(0x182BA8E8)   // 9 % alpha -- card tints
-val BrandPrimaryBorder = Color(0x302BA8E8)   // 19 % alpha -- glowing border
-val BrandOnPrimary     = Color(0xFFFFFFFF)
+// ── Light scheme ───────────────────────────────────────────────────────────
+val md_light_primary              = Color(0xFF006493)
+val md_light_onPrimary            = Color(0xFFFFFFFF)
+val md_light_primaryContainer     = Color(0xFFCAE6FF)
+val md_light_onPrimaryContainer   = Color(0xFF001E30)
+val md_light_secondary            = Color(0xFF50606E)
+val md_light_onSecondary          = Color(0xFFFFFFFF)
+val md_light_secondaryContainer   = Color(0xFFD3E5F5)
+val md_light_onSecondaryContainer = Color(0xFF0C1D29)
+val md_light_tertiary             = Color(0xFF65587B)
+val md_light_onTertiary           = Color(0xFFFFFFFF)
+val md_light_tertiaryContainer    = Color(0xFFEBDCFF)
+val md_light_onTertiaryContainer  = Color(0xFF201634)
+val md_light_error                = Color(0xFFBA1A1A)
+val md_light_onError              = Color(0xFFFFFFFF)
+val md_light_errorContainer       = Color(0xFFFFDAD6)
+val md_light_onErrorContainer     = Color(0xFF410002)
+val md_light_background           = Color(0xFFF8F9FF)
+val md_light_onBackground         = Color(0xFF191C20)
+val md_light_surface              = Color(0xFFF8F9FF)
+val md_light_onSurface            = Color(0xFF191C20)
+val md_light_surfaceVariant       = Color(0xFFDDE3EA)
+val md_light_onSurfaceVariant     = Color(0xFF41474D)
+val md_light_outline              = Color(0xFF72787E)
+val md_light_outlineVariant       = Color(0xFFC1C7CE)
+val md_light_inverseSurface       = Color(0xFF2E3135)
+val md_light_inverseOnSurface     = Color(0xFFEFF0F7)
+val md_light_inversePrimary       = Color(0xFF8DCDFF)
+val md_light_surfaceDim           = Color(0xFFD8DAE0)
+val md_light_surfaceBright        = Color(0xFFF8F9FF)
+val md_light_surfaceContainerLowest  = Color(0xFFFFFFFF)
+val md_light_surfaceContainerLow     = Color(0xFFF2F3FA)
+val md_light_surfaceContainer        = Color(0xFFECEEF4)
+val md_light_surfaceContainerHigh    = Color(0xFFE6E8EE)
+val md_light_surfaceContainerHighest = Color(0xFFE1E2E8)
+
+// ── Dark scheme ────────────────────────────────────────────────────────────
+val md_dark_primary              = Color(0xFF8DCDFF)
+val md_dark_onPrimary            = Color(0xFF00344F)
+val md_dark_primaryContainer     = Color(0xFF004B70)
+val md_dark_onPrimaryContainer   = Color(0xFFCAE6FF)
+val md_dark_secondary            = Color(0xFFB7C9D9)
+val md_dark_onSecondary          = Color(0xFF22323F)
+val md_dark_secondaryContainer   = Color(0xFF384956)
+val md_dark_onSecondaryContainer = Color(0xFFD3E5F5)
+val md_dark_tertiary             = Color(0xFFCFC0E8)
+val md_dark_onTertiary           = Color(0xFF362B4A)
+val md_dark_tertiaryContainer    = Color(0xFF4C4162)
+val md_dark_onTertiaryContainer  = Color(0xFFEBDCFF)
+val md_dark_error                = Color(0xFFFFB4AB)
+val md_dark_onError              = Color(0xFF690005)
+val md_dark_errorContainer       = Color(0xFF93000A)
+val md_dark_onErrorContainer     = Color(0xFFFFDAD6)
+val md_dark_background           = Color(0xFF111418)
+val md_dark_onBackground         = Color(0xFFE1E2E8)
+val md_dark_surface              = Color(0xFF111418)
+val md_dark_onSurface            = Color(0xFFE1E2E8)
+val md_dark_surfaceVariant       = Color(0xFF41474D)
+val md_dark_onSurfaceVariant     = Color(0xFFC1C7CE)
+val md_dark_outline              = Color(0xFF8B9198)
+val md_dark_outlineVariant       = Color(0xFF41474D)
+val md_dark_inverseSurface       = Color(0xFFE1E2E8)
+val md_dark_inverseOnSurface     = Color(0xFF2E3135)
+val md_dark_inversePrimary       = Color(0xFF006493)
+val md_dark_surfaceDim           = Color(0xFF111418)
+val md_dark_surfaceBright        = Color(0xFF36393E)
+val md_dark_surfaceContainerLowest  = Color(0xFF0B0E13)
+val md_dark_surfaceContainerLow     = Color(0xFF191C20)
+val md_dark_surfaceContainer        = Color(0xFF1D2024)
+val md_dark_surfaceContainerHigh    = Color(0xFF272A2F)
+val md_dark_surfaceContainerHighest = Color(0xFF32353A)
+
+// Kept for any code that still references the raw brand colour.
+val BrandPrimary   = Color(0xFF2AABEE)
+val BrandOnPrimary = Color(0xFFFFFFFF)
 
 /**
- * Theme-aware surface/text colors.
- *
- * Background, Surface, TextPrimary, Border, Glass, Scrim, etc. used to be
- * plain top-level `val`s -- great for a dark-only app, but they can't react
- * to a light/dark toggle since they're resolved once at class-load time.
- *
- * They're now `@Composable` property getters backed by [LocalAppColors], a
- * CompositionLocal set once in [TgBackupTheme]. Every existing call site in
- * the app (`Background`, `TextSecondary`, `.background(Surface)`, ...) keeps
- * compiling and working unchanged -- they were already only ever referenced
- * from inside Composable functions.
- *
- * Primary/Success/Warning/Destructive (the brand + semantic colors) stay as
- * plain constants below: by design they don't change between light and dark.
+ * App-level tokens. They are always derived from the active Material
+ * [androidx.compose.material3.ColorScheme] (see Theme.kt), so the legacy
+ * accessors below (Background, Surface, TextPrimary, Primary...) stay in
+ * sync with light/dark and Material You automatically.
  */
 data class AppColors(
     val background: Color,
@@ -43,85 +106,24 @@ data class AppColors(
     val glass: Color,
     val glassStrong: Color,
     val scrim: Color,
-    // Accent colors. Static brand blue by default; follow the wallpaper-based
-    // Material You scheme when dynamic color is on.
-    val primary: Color = BrandPrimary,
-    val onPrimary: Color = BrandOnPrimary,
-    val primaryDark: Color = BrandPrimaryDark,
-    val primaryDim: Color = BrandPrimaryDim,
-    val primaryGlow: Color = BrandPrimaryGlow,
-    val primaryBorder: Color = BrandPrimaryBorder,
+    val primary: Color,
+    val onPrimary: Color,
+    val primaryDark: Color,
+    val primaryDim: Color,
+    val primaryGlow: Color,
+    val primaryBorder: Color,
+    val primaryContainer: Color,
+    val onPrimaryContainer: Color,
+    val success: Color,
+    val warning: Color,
+    val destructive: Color,
 )
 
-// -- Premium Pitch-Black Palette (dark mode, default) ---------------------
+val LocalAppColors = staticCompositionLocalOf<AppColors> {
+    error("TgBackupTheme not applied")
+}
 
-val DarkBackground      = Color(0xFF000000)   // Pure black canvas
-val DarkSurface         = Color(0xFF0C0C0E)   // Cards / sheets
-val DarkSurfaceAlt      = Color(0xFF141416)   // Elevated surfaces
-val DarkSurfaceElevated = Color(0xFF1C1C1F)   // Popups / dialogs
-val DarkBorder          = Color(0xFF222226)   // Visible dividers
-val DarkBorderSubtle    = Color(0xFF18181B)   // Very subtle hairlines
-val DarkTextPrimary     = Color(0xFFE8E8ED)   // Off-white -- easier on eyes
-val DarkTextSecondary   = Color(0xFF8E8E96)
-val DarkTextMuted       = Color(0xFF48484F)
-val DarkTextHint        = Color(0xFF2C2C30)
-val DarkGlass           = Color(0x14FFFFFF)   // White 8 % -- glassmorphism
-val DarkGlassStrong     = Color(0x26FFFFFF)   // White 15 %
-val DarkScrim           = Color(0xCC000000)   // 80 % black overlay
-
-// -- Clean Light Palette (light mode) --------------------------------------
-
-val LightBackground      = Color(0xFFF5F6F8)   // Soft off-white canvas
-val LightSurface         = Color(0xFFFFFFFF)   // Cards / sheets
-val LightSurfaceAlt      = Color(0xFFEFF1F4)   // Elevated surfaces
-val LightSurfaceElevated = Color(0xFFFFFFFF)   // Popups / dialogs
-val LightBorder          = Color(0xFFE1E3E8)   // Visible dividers
-val LightBorderSubtle    = Color(0xFFEBEDF0)   // Very subtle hairlines
-val LightTextPrimary     = Color(0xFF14141A)   // Near-black
-val LightTextSecondary   = Color(0xFF5B5B66)
-val LightTextMuted       = Color(0xFFA3A3AD)
-val LightTextHint        = Color(0xFFD2D2D8)
-val LightGlass           = Color(0x14000000)   // Black 8 % -- glassmorphism
-val LightGlassStrong     = Color(0x26000000)   // Black 15 %
-val LightScrim           = Color(0x99000000)   // 60 % black overlay
-
-val DarkAppColors = AppColors(
-    background      = DarkBackground,
-    surface         = DarkSurface,
-    surfaceAlt      = DarkSurfaceAlt,
-    surfaceElevated = DarkSurfaceElevated,
-    border          = DarkBorder,
-    borderSubtle    = DarkBorderSubtle,
-    textPrimary     = DarkTextPrimary,
-    textSecondary   = DarkTextSecondary,
-    textMuted       = DarkTextMuted,
-    textHint        = DarkTextHint,
-    glass           = DarkGlass,
-    glassStrong     = DarkGlassStrong,
-    scrim           = DarkScrim,
-)
-
-val LightAppColors = AppColors(
-    background      = LightBackground,
-    surface         = LightSurface,
-    surfaceAlt      = LightSurfaceAlt,
-    surfaceElevated = LightSurfaceElevated,
-    border          = LightBorder,
-    borderSubtle    = LightBorderSubtle,
-    textPrimary     = LightTextPrimary,
-    textSecondary   = LightTextSecondary,
-    textMuted       = LightTextMuted,
-    textHint        = LightTextHint,
-    glass           = LightGlass,
-    glassStrong     = LightGlassStrong,
-    scrim           = LightScrim,
-)
-
-/** Defaults to dark so any preview/host that forgets to provide it still renders correctly. */
-val LocalAppColors = staticCompositionLocalOf { DarkAppColors }
-
-// -- Back-compat accessors used everywhere in the app ----------------------
-
+// ── Accessors used throughout the app ─────────────────────────────────────
 val Background: Color      @Composable get() = LocalAppColors.current.background
 val Surface: Color         @Composable get() = LocalAppColors.current.surface
 val SurfaceAlt: Color      @Composable get() = LocalAppColors.current.surfaceAlt
@@ -136,19 +138,19 @@ val Glass: Color           @Composable get() = LocalAppColors.current.glass
 val GlassStrong: Color     @Composable get() = LocalAppColors.current.glassStrong
 val Scrim: Color           @Composable get() = LocalAppColors.current.scrim
 
-// Theme-aware accent accessors (switch to Material You colors when dynamic color is on)
-val Primary: Color       @Composable get() = LocalAppColors.current.primary
-val PrimaryDark: Color   @Composable get() = LocalAppColors.current.primaryDark
-val PrimaryGlow: Color   @Composable get() = LocalAppColors.current.primaryGlow
-val PrimaryDim: Color    @Composable get() = LocalAppColors.current.primaryDim
-val PrimaryBorder: Color @Composable get() = LocalAppColors.current.primaryBorder
-val OnPrimary: Color     @Composable get() = LocalAppColors.current.onPrimary
+val Primary: Color            @Composable get() = LocalAppColors.current.primary
+val PrimaryDark: Color        @Composable get() = LocalAppColors.current.primaryDark
+val PrimaryGlow: Color        @Composable get() = LocalAppColors.current.primaryGlow
+val PrimaryDim: Color         @Composable get() = LocalAppColors.current.primaryDim
+val PrimaryBorder: Color      @Composable get() = LocalAppColors.current.primaryBorder
+val OnPrimary: Color          @Composable get() = LocalAppColors.current.onPrimary
+val PrimaryContainer: Color   @Composable get() = LocalAppColors.current.primaryContainer
+val OnPrimaryContainer: Color @Composable get() = LocalAppColors.current.onPrimaryContainer
 
-// -- Semantic colours -- same in both themes -------------------------------
-
-val Success         = Color(0xFF34D87A)   // Richer green
-val SuccessDim      = Color(0x1A34D87A)
-val Warning         = Color(0xFFFFCC00)
-val WarningDim      = Color(0x1AFFCC00)
-val Destructive     = Color(0xFFFF3B30)   // iOS-style red for urgency
-val DestructiveDim  = Color(0x1AFF3B30)
+// ── Semantic colours (balanced to read well on light and dark) ────────────
+val Success         = Color(0xFF2E9D5B)
+val SuccessDim      = Color(0x1F2E9D5B)
+val Warning         = Color(0xFFE0A100)
+val WarningDim      = Color(0x1FE0A100)
+val Destructive     = Color(0xFFD93A3A)
+val DestructiveDim  = Color(0x1FD93A3A)

@@ -79,7 +79,7 @@ fun AlbumDetailScreen(
             .background(Background)
     ) {
         // Header
-        CenterAlignedTopAppBar(
+        TopAppBar(
             title = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
@@ -109,11 +109,11 @@ fun AlbumDetailScreen(
                         Icon(Icons.Default.Delete, "Delete", tint = TextPrimary)
                     }
                     TextButton(onClick = { viewModel.exitSelectionMode() }) {
-                        Text("Cancel", color = Primary, fontWeight = FontWeight.Bold)
+                        Text("Cancel")
                     }
                 }
             },
-            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Background)
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
         )
 
         if (pagingItems.itemCount == 0) {

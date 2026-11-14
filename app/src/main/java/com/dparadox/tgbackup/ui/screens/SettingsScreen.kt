@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.dparadox.tgbackup.ui.screens
 
 import android.content.Context
@@ -184,7 +186,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     shape    = RoundedCornerShape(13.dp),
                     colors   = ButtonDefaults.buttonColors(
                         containerColor        = Primary,
-                        contentColor          = Color.White,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                         disabledContainerColor = SurfaceElevated,
                         disabledContentColor  = TextMuted
                     ),
@@ -211,14 +213,15 @@ fun SettingsScreen(viewModel: MainViewModel) {
 
                 Text("Theme", color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
                     modifier = Modifier.padding(start = 10.dp, top = 8.dp, bottom = 6.dp))
-                Row(
-                    Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                val themeOptions = listOf("System" to 0, "Light" to 1, "Dark" to 2)
+                SingleChoiceSegmentedButtonRow(
+                    Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
-                    listOf("System" to 0, "Light" to 1, "Dark" to 2).forEach { (label, mode) ->
-                        FilterChip(
+                    themeOptions.forEachIndexed { index, (label, mode) ->
+                        SegmentedButton(
                             selected = themeMode == mode,
                             onClick  = { viewModel.setThemeMode(mode) },
+                            shape    = SegmentedButtonDefaults.itemShape(index, themeOptions.size),
                             label    = { Text(label) }
                         )
                     }
@@ -619,7 +622,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
                     TextButton(onClick = { showResetDialog = false }) { Text("Cancel", color = TextSecondary) }
                 },
                 containerColor = SurfaceElevated,
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(24.dp)
             )
         }
 
@@ -771,7 +774,7 @@ private fun MigrationSection(viewModel: MainViewModel) {
                         shape    = RoundedCornerShape(13.dp),
                         colors   = ButtonDefaults.buttonColors(
                             containerColor          = Primary,
-                            contentColor            = Color.White,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
                             disabledContainerColor  = SurfaceElevated,
                             disabledContentColor    = TextMuted
                         ),
@@ -806,21 +809,19 @@ private fun SettingsSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(icon, null, tint = Primary, modifier = Modifier.size(14.dp))
+            Icon(icon, null, tint = Primary, modifier = Modifier.size(18.dp))
             Text(
-                label,
-                fontSize  = 10.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 1.4.sp,
-                color = TextMuted
+                label.lowercase().split(" ").joinToString(" ") { it.replaceFirstChar(Char::uppercase) },
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = Primary
             )
         }
         Box(
             Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .background(Surface)
-                .border(1.dp, Border, RoundedCornerShape(18.dp))
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
         ) {
             content()
         }
@@ -849,13 +850,7 @@ private fun PremiumToggle(
         }
         Switch(
             checked         = checked,
-            onCheckedChange = onChecked,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor   = Color.White,
-                checkedTrackColor   = Primary,
-                uncheckedThumbColor = TextMuted,
-                uncheckedTrackColor = SurfaceElevated
-            )
+            onCheckedChange = onChecked
         )
     }
 }
@@ -872,7 +867,7 @@ private fun SetupStep(number: String, title: String, desc: String) {
                 .background(PrimaryDim),
             contentAlignment = Alignment.Center
         ) {
-            Text(number, color = Primary, fontWeight = FontWeight.Black, fontSize = 13.sp)
+            Text(number, color = Primary, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(title, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
@@ -892,7 +887,7 @@ private fun StoragePane(label: String, encrypted: Int, plain: Int, modifier: Mod
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(label.uppercase(), fontSize = 9.sp, fontWeight = FontWeight.Black, color = TextMuted)
+        Text(label.uppercase(), fontSize = 9.sp, fontWeight = FontWeight.SemiBold, color = TextMuted)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(encrypted.toString(), color = Success, fontWeight = FontWeight.Bold, fontSize = 14.sp)
@@ -944,7 +939,6 @@ fun CloudRestoreDialog(
                 .fillMaxHeight(0.82f)
                 .clip(RoundedCornerShape(26.dp))
                 .background(SurfaceElevated)
-                .border(1.dp, Border, RoundedCornerShape(26.dp))
         ) {
             Column(Modifier.fillMaxSize()) {
                 // Header
@@ -955,7 +949,7 @@ fun CloudRestoreDialog(
                         .padding(22.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("Select Folders to Restore", fontWeight = FontWeight.Black, fontSize = 18.sp, color = TextPrimary)
+                    Text("Select Folders to Restore", fontWeight = FontWeight.SemiBold, fontSize = 18.sp, color = TextPrimary)
                     Text("${folders.size} folders found in cloud backup", fontSize = 12.sp, color = TextSecondary)
                 }
                 GradientDivider()
@@ -1028,7 +1022,7 @@ fun CloudRestoreDialog(
                         enabled = selectedFolders.value.isNotEmpty(),
                         shape   = RoundedCornerShape(13.dp),
                         colors  = ButtonDefaults.buttonColors(
-                            containerColor = Primary, contentColor = Color.White,
+                            containerColor = Primary, contentColor = MaterialTheme.colorScheme.onPrimary,
                             disabledContainerColor = SurfaceAlt, disabledContentColor = TextMuted
                         ),
                         modifier = Modifier.weight(2f).height(48.dp),

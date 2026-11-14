@@ -99,17 +99,14 @@ fun PremiumCard(
     glowColor: Color = Primary,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val shape = RoundedCornerShape(cornerRadius)
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(Surface)
-            .then(
-                if (glowing)
-                    Modifier.glowingBorder(glowColor, cornerRadius)
-                else
-                    Modifier.border(1.dp, Border, shape)
-            )
+    // Material 3 filled card: tonal surface, no outline, no glow.
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (glowing) MaterialTheme.colorScheme.primaryContainer
+                             else MaterialTheme.colorScheme.surfaceContainer,
+        ),
     ) {
         Column(content = content)
     }
@@ -123,28 +120,13 @@ fun SectionLabel(
     modifier: Modifier = Modifier,
     accentColor: Color = Primary
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .width(3.dp)
-                .height(14.dp)
-                .clip(RoundedCornerShape(2.dp))
-                .background(
-                    Brush.verticalGradient(listOf(accentColor, accentColor.copy(alpha = 0.3f)))
-                )
-        )
-        Text(
-            text = text,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.ExtraBold,
-            letterSpacing = 1.4.sp,
-            color = TextMuted
-        )
-    }
+    Text(
+        text = text.lowercase().split(" ").joinToString(" ") { it.replaceFirstChar(Char::uppercase) },
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        color = accentColor,
+        modifier = modifier.padding(start = 4.dp, top = 4.dp)
+    )
 }
 
 // ── Stat tile ─────────────────────────────────────────────────────────────

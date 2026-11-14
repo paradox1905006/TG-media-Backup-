@@ -74,7 +74,7 @@ fun MusicScreen(viewModel: MainViewModel) {
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(18.dp))
+                        .clip(RoundedCornerShape(24.dp))
                         .background(SurfaceAlt)
                         .padding(16.dp)
                 ) {
@@ -89,7 +89,7 @@ fun MusicScreen(viewModel: MainViewModel) {
                 Box(
                     Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(24.dp))
                         .background(Surface)
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                 ) {
@@ -104,8 +104,7 @@ fun MusicScreen(viewModel: MainViewModel) {
                         }
                         Switch(
                             checked = includeMusicBackup,
-                            onCheckedChange = { viewModel.setIncludeMusicBackup(it) },
-                            colors = SwitchDefaults.colors(checkedTrackColor = Primary, checkedThumbColor = Color.White)
+                            onCheckedChange = { viewModel.setIncludeMusicBackup(it) }
                         )
                     }
                 }
@@ -116,13 +115,8 @@ fun MusicScreen(viewModel: MainViewModel) {
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(20.dp))
+                            .clip(RoundedCornerShape(24.dp))
                             .background(if (autoBackupMusic) PrimaryDim else Surface)
-                            .border(
-                                1.dp,
-                                if (autoBackupMusic) PrimaryBorder else Border,
-                                RoundedCornerShape(20.dp)
-                            )
                     ) {
                         Row(
                             Modifier
@@ -154,13 +148,7 @@ fun MusicScreen(viewModel: MainViewModel) {
                             }
                             Switch(
                                 checked = autoBackupMusic,
-                                onCheckedChange = { viewModel.setAutoBackupMusicEnabled(it) },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor   = Color.White,
-                                    checkedTrackColor   = Primary,
-                                    uncheckedThumbColor = TextMuted,
-                                    uncheckedTrackColor = SurfaceElevated
-                                )
+                                onCheckedChange = { viewModel.setAutoBackupMusicEnabled(it) }
                             )
                         }
                     }
@@ -172,7 +160,7 @@ fun MusicScreen(viewModel: MainViewModel) {
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RoundedCornerShape(24.dp))
                             .background(Surface)
                     ) {
                         Column {
@@ -224,12 +212,7 @@ fun MusicScreen(viewModel: MainViewModel) {
                                             }
                                             Checkbox(
                                                 checked = isSelected,
-                                                onCheckedChange = { viewModel.toggleMusicFolder(folder) },
-                                                colors = CheckboxDefaults.colors(
-                                                    checkedColor   = Primary,
-                                                    uncheckedColor = TextMuted,
-                                                    checkmarkColor = Color.White
-                                                )
+                                                onCheckedChange = { viewModel.toggleMusicFolder(folder) }
                                             )
                                         }
                                     }
@@ -283,7 +266,7 @@ fun MusicScreen(viewModel: MainViewModel) {
 @Composable
 private fun MusicStat(value: String, label: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(value, color = color, fontWeight = FontWeight.Black, fontSize = 20.sp)
+        Text(value, color = color, fontWeight = FontWeight.SemiBold, fontSize = 20.sp)
         Text(label, color = TextMuted, fontSize = 11.sp)
     }
 }
@@ -298,77 +281,49 @@ private fun MusicRow(
     isSelected: Boolean = false,
     onToggleSelected: () -> Unit = {}
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(if (isCurrent) PrimaryDim else if (isSelected && selectionMode) PrimaryDim else Surface)
-            .let { if (selectionMode) it.clickable { onToggleSelected() } else it }
-    ) {
+    val cs = MaterialTheme.colorScheme
+    Column(Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .clip(RoundedCornerShape(16.dp))
+                .background(if (isCurrent) cs.secondaryContainer.copy(alpha = 0.6f) else Color.Transparent)
+                .let { if (selectionMode) it.clickable { onToggleSelected() } else it.clickable { onTap() } }
+                .padding(horizontal = 8.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Play/pause control
-            Box(
-                Modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
-                    .background(if (isCurrent) Primary else SurfaceAlt)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onTap
-                    ),
-                contentAlignment = Alignment.Center
+            FilledTonalIconButton(
+                onClick = onTap,
+                modifier = Modifier.size(44.dp),
+                colors = if (isCurrent) IconButtonDefaults.filledIconButtonColors()
+                         else IconButtonDefaults.filledTonalIconButtonColors()
             ) {
                 Icon(
                     if (isCurrent && isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    null,
-                    tint = if (isCurrent) Color.White else TextSecondary,
+                    contentDescription = if (isCurrent && isPlaying) "Pause" else "Play",
                     modifier = Modifier.size(22.dp)
                 )
             }
-
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(
-                    track.title,
-                    color      = TextPrimary,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize   = 13.sp,
-                    maxLines   = 1,
-                    overflow   = TextOverflow.Ellipsis
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(track.artist, color = TextMuted, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text("·", color = TextHint, fontSize = 11.sp)
-                    Text(formatDurationM(track.durationMs), color = TextMuted, fontSize = 11.sp)
-                }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(track.title, style = MaterialTheme.typography.titleSmall, color = cs.onSurface,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text("${track.artist} · ${formatDurationM(track.durationMs)}",
+                    style = MaterialTheme.typography.bodySmall, color = cs.onSurfaceVariant,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-
-            // Selection checkbox (selective mode) or plain backup status
             if (selectionMode) {
-                Checkbox(
-                    checked = isSelected,
-                    onCheckedChange = { onToggleSelected() },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor   = Primary,
-                        uncheckedColor = TextMuted,
-                        checkmarkColor = Color.White
-                    )
-                )
+                Checkbox(checked = isSelected, onCheckedChange = { onToggleSelected() })
             } else {
                 Icon(
                     if (track.isBackedUp) Icons.Default.CloudDone else Icons.Default.CloudOff,
                     null,
-                    tint = if (track.isBackedUp) Success else TextHint,
+                    tint = if (track.isBackedUp) Success else cs.outline,
                     modifier = Modifier.size(18.dp)
                 )
             }
         }
+        HorizontalDivider(Modifier.padding(start = 66.dp), color = cs.outlineVariant.copy(alpha = 0.5f))
     }
 }
 

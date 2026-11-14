@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Compose draws the real UI; this XML theme only affects the window before the first frame. -->
+    <!-- Compose draws the real UI; this only paints the window before the first frame. -->
     <style name="Theme.TGxDParadox" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">#F5F6F8</item>
+        <item name="android:windowBackground">#F8F9FF</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>

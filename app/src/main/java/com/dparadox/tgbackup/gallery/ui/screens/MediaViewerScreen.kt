@@ -213,7 +213,7 @@ fun MediaViewerScreen(
                         modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
                     ) {
                         currentItem?.let {
-                            Text(it.displayName, color = Color.White, fontSize = 16.sp, maxLines = 1)
+                            Text(it.displayName, color = Color.White, style = MaterialTheme.typography.titleMedium, maxLines = 1)
                             Text(
                                 SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(Date(it.dateTaken)),
                                 color = Color.White.copy(0.7f),
@@ -264,14 +264,17 @@ fun MediaViewerScreen(
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             Surface(
-                color = Color.Black.copy(alpha = 0.5f),
-                contentColor = Color.White
+                color = Color(0xFF1F1F23).copy(alpha = 0.85f),
+                contentColor = Color.White,
+                shape = RoundedCornerShape(28.dp),
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(vertical = 12.dp),
+                        .padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -366,13 +369,13 @@ private fun ViewerAction(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
-            .padding(8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
-        Icon(icon, null, modifier = Modifier.size(20.dp))
+        Icon(icon, null, modifier = Modifier.size(22.dp))
         Spacer(Modifier.height(4.dp))
-        Text(label, fontSize = 10.sp)
+        Text(label, style = MaterialTheme.typography.labelMedium)
     }
 }
 
